@@ -67,7 +67,6 @@ fn main() {
 
     for line in contents.lines() {
         let mut s: String = String::new();
-        println!("{line}");
         let mut my_array: Vec<&str> = vec![];
         let x = line.split_whitespace();
         for y in x {
@@ -75,20 +74,16 @@ fn main() {
             my_array.push(&w);
         }
 
-        print!("{:?}", my_array);
-
         let my_string = my_array[3];
         let my_int: u16 = my_string.parse().unwrap();
 
         let imm_binary = decimal_to_12bit_binary(my_int);
-        println!("{}", imm_binary);
 
         // imm[5:12]
         s.push_str(&imm_binary[0..7]);
         // src reg2
         if let Some(value) = hash_map2.get(my_array[2]) {
             s.push_str(value);
-            println!("{}", value);
         }
         // src reg1
         if let Some(value) = hash_map2.get(my_array[1]) {
