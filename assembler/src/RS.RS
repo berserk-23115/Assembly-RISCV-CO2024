@@ -1,0 +1,5 @@
+// FUNCTION FOR R TYPE INSTRUCTIONS 
+fn UInstruction(line : string){
+    
+}
+// FUNTION FOR S TYPE INSTRUCTIONS
