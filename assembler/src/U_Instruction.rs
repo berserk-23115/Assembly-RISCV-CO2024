@@ -1,18 +1,16 @@
-mod helper_functions;
-use helper_functions::decimal_to_12bit_binary;
-// use helper_functions::remove_commas;
 
 // header files
 use std::collections::HashMap;
-// use std::fs::File;
-// use std::io::prelude::*;
 
 /*
 
-IC DES REG IMM
+IC DESREG IMM
  */
+fn format19(value: i32) -> String {
+    format!("{:019b}", value)   // format!("{:012b}", value)
+}
 
-fn U_type(input_str: &str) {
+fn u_type(input_str: &str) {
     // taking input string as parameter , output file header
     // hashmap for instructions in the instruction category
     let instructions: HashMap<&str, &str> = [
@@ -95,35 +93,15 @@ fn U_type(input_str: &str) {
     .iter()
     .cloned()
     .collect();
-    let mut opcode: Vec<&str> = vec![];
-    opcode = input_str.split(" ").collect(); // opcode isolation from string
+    let opcode: Vec<&str> = input_str.split(" ").collect();
     let instruction: &str = opcode[0];
-    let opstr: &str = opcode[1];
-    let mut operands: Vec<&str> = vec![]; // operand isolation from string
-    operands = opstr.split(",").collect(); // operand split
-    let final_str: String;
-    let instruction_bin: &str;
-    let register_bin: &str;
-
-    // IMMEDIATE VALUE CONVERSION
-    let immediate_val: &str;
-    let imm_int: u16 = immediate_val.parse().unwrap();
-    let imm_bin: String = decimal_to_12bit_binary(imm_int);
-
-    // REGISTER BINARY CONVERSION
-    for i in registers.keys() {
-        if &operands[0] == i {
-            register_bin = registers[operands[0]];
-        }
-    }
-    for j in instructions.keys() {
-        if assert_eq!(j, instruction){
-            instruction_bin = instructions[instruction];
-        }
-    }
-    final_str = instruction_bin.to_owned() + register_bin + &imm_bin;
-    println!("{}", final_str);
+    let operands: Vec<&str> = opcode[1].split(",").collect();
+    let instruction_bin: &str = instructions[instruction];
+    let dest_register_bin: &str = registers[operands[0]];
+    let immediate_bin: String = format19(operands[1].parse().unwrap());
+    println!("{} {} {}", immediate_bin, dest_register_bin, instruction_bin);
 }
 fn main() {
-
+    let str1: &str = "auipc s2,30";
+    u_type(str1);
 }

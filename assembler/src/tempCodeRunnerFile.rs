@@ -1,1 +1,1 @@
-use std::io::prelude::*;
+format!("{:012b}", value)
