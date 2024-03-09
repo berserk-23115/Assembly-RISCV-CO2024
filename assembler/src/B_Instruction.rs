@@ -1,10 +1,9 @@
 // modules
 mod helper_functions;
+use helper_functionj::twos_complement;
 use helper_functions::decimal_to_12bit_binary;
 use helper_functions::remove_commas;
-use helper_functions::syntax_checker;
 mod instructions;
-use instructions::Btype;
 
 // header files
 use std::collections::HashMap;
@@ -77,9 +76,35 @@ fn main() {
             let w = remove_commas(y);
             my_array.push(&w);
         }
-        arr.push(my_array);
-        let s: String = Btype(my_array);
-        println!("{s}");
+        arr.push(my_array.clone());
+        let mut s: String = String::new();
+
+        let my_string = my_array[3];
+        let my_int: i16 = my_string.parse().unwrap();
+        print!("{my_int}\n");
+
+        let imm_binary = decimal_to_12bit_binary(my_int as u16);
+
+        print!("{imm_binary}");
+        // imm[5:12]
+        s.push_str(&imm_binary[0..7]);
+        // src reg2
+        if let Some(value) = hash_map2.get(my_array[2]) {
+            s.push_str(value);
+        }
+        // src reg1
+        if let Some(value) = hash_map2.get(my_array[1]) {
+            s.push_str(value);
+        }
+        // func 3
+        if let Some(value) = hash_map.get(my_array[0]) {
+            s.push_str(value[1]);
+        }
+        // imm[4:0]
+        s.push_str(&imm_binary[7..]);
+        // opcode
+        if let Some(value) = hash_map.get(my_array[0]) {
+            s.push_str(value[0]);
+        }
     }
-    syntax_checker(arr);
 }

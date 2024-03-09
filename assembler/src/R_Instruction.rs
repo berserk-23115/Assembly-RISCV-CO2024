@@ -1,28 +1,10 @@
-mod helper_functions;
-mod instructions;
-
-use helper_functions::*;
-use instructions::*;
-
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
-use std::process::exit;
+use std::vec::Vec;
 
 fn main() {
-    let instructions: Vec<Vec<&str>> = vec![
-        vec![
-            "add", "sub", "sll", "slt", "sltu", "xor", "srl", "or", "and",
-        ],
-        vec!["lw", "addi", "sltiu", "jalr"],
-        vec!["sw"],
-        vec!["beq", "bne", "blt", "bge", "bltu", "bgeu"],
-        vec!["lui", "auipc"],
-        vec!["jal"],
-        vec!["mul", "rst", "halt", "rvrs"],
-    ];
-
-    let hash_map_R: HashMap<&str, Vec<&str>> = [
+    let hash_map: HashMap<&str, Vec<&str>> = [
         ("add", vec!["0110011", "000", "0000000"]),
         ("sub", vec!["0110011", "000", "0100000"]),
         ("sll", vec!["0110011", "001", "0000000"]),
@@ -36,39 +18,6 @@ fn main() {
     .iter()
     .cloned()
     .collect();
-
-    let hash_map_I: HashMap<&str, Vec<&str>> = [
-        ("addi", vec!["0010011", "000"]),
-        ("lw", vec!["0000011", "010"]),
-        ("lb", vec!["0000011", "010"]),
-        ("lh", vec!["0000011", "010"]),
-        ("ld", vec!["0000011", "010"]),
-        ("sltiu", vec!["0010011", "011"]),
-        ("jalr", vec!["1100111", "000"]),
-    ]
-    .iter()
-    .cloned()
-    .collect();
-
-    let hash_map_B: HashMap<&str, Vec<&str>> = [
-        ("beq", vec!["1100011", "000"]),
-        ("bne", vec!["1100011", "001"]),
-        ("blt", vec!["1100011", "100"]),
-        ("bge", vec!["1100011", "101"]),
-        ("bltu", vec!["1100011", "110"]),
-        ("bgeu", vec!["1100011", "111"]),
-    ]
-    .iter()
-    .cloned()
-    .collect();
-
-    let hash_map_U: HashMap<&str, &str> = [("lui", "0110111"), ("auipc", "0010111")]
-        .iter()
-        .cloned()
-        .collect();
-
-    let hash_map_J: HashMap<&str, &str> = [("jal", "1101111")].iter().cloned().collect();
-
     let hash_map2: HashMap<&str, &str> = [
         ("x0", "00000"),
         ("x1", "00001"),
@@ -145,42 +94,23 @@ fn main() {
     let mut contents: String = String::new();
     file.read_to_string(&mut contents).expect("oops cant ...");
 
-    let mut arr: Vec<Vec<&str>> = vec![];
-
     for line in contents.lines() {
-        let mut my_array: Vec<&str> = vec![];
-        let x = line.split_whitespace();
-        for y in x {
-            let w: Vec<&str> = y.split(",").collect();
-            for z in w {
-                my_array.push(&z);
-            }
-        }
-        arr.push(my_array);
-    }
-
-    // print!("{:?}", arr);
-
-    //if is_syntax_error(arr.clone()) {
-    //    exit(0);
-    //}
-
-    let mut machine_code: Vec<String> = vec![];
-
-    for line in arr {
-        // print!("{:?}", line);
-        if instructions[0].contains(&line[0]) {
-            machine_code.push(rtype(&hash_map_R, &hash_map2, &line));
-        }
-        //else if instructions[0].contains(&line[1]) {
-        //  machine_code.push(itype(&hash_map_I, &hash_map2, &line));
-        //}
-        else if instructions[4].contains(&line[0]) {
-            machine_code.push(utype(&hash_map_U, &hash_map2, &line));
-        }
-    }
-
-    for line in machine_code {
-        print!("{line}\n");
+        println!("{line}");
+        let opcode: Vec<&str> = line.split(" ").collect();
+        let instruction: &str = opcode[0];
+        let operands: Vec<&str> = opcode[1].split(",").collect();
+        let instruction_bin: &Vec<&str> = &hash_map[instruction];
+        let register_bin: &str = &hash_map2[operands[0]];
+        let register_bin1: &str = &hash_map2[operands[1]];
+        let register_bin2: &str = &hash_map2[operands[2]];
+        println!(
+            "{}{}{}{}{}{}",
+            instruction_bin[2],
+            register_bin2,
+            register_bin1,
+            instruction_bin[1],
+            register_bin,
+            instruction_bin[0]
+        );
     }
 }
