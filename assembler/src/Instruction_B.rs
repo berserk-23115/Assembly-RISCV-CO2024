@@ -2,6 +2,9 @@
 mod helper_functions;
 use helper_functions::decimal_to_12bit_binary;
 use helper_functions::remove_commas;
+use helper_functions::syntax_checker;
+mod instructions;
+use instructions::Btype;
 
 // header files
 use std::collections::HashMap;
@@ -65,41 +68,18 @@ fn main() {
     let mut contents: String = String::new();
     file.read_to_string(&mut contents).expect("oops cant ...");
 
+    let mut arr: Vec<Vec<&str>> = vec![];
+
     for line in contents.lines() {
-        let mut s: String = String::new();
         let mut my_array: Vec<&str> = vec![];
         let x = line.split_whitespace();
         for y in x {
             let w = remove_commas(y);
             my_array.push(&w);
         }
-
-        let my_string = my_array[3];
-        let my_int: u16 = my_string.parse().unwrap();
-
-        let imm_binary = decimal_to_12bit_binary(my_int);
-
-        // imm[5:12]
-        s.push_str(&imm_binary[0..7]);
-        // src reg2
-        if let Some(value) = hash_map2.get(my_array[2]) {
-            s.push_str(value);
-        }
-        // src reg1
-        if let Some(value) = hash_map2.get(my_array[1]) {
-            s.push_str(value);
-        }
-        // func 3
-        if let Some(value) = hash_map.get(my_array[0]) {
-            s.push_str(value[1]);
-        }
-        // imm[4:0]
-        s.push_str(&imm_binary[7..]);
-        // opcode
-        if let Some(value) = hash_map.get(my_array[0]) {
-            s.push_str(value[0]);
-        }
-
+        arr.push(my_array);
+        let s: String = Btype(my_array);
         println!("{s}");
     }
+    syntax_checker(arr);
 }
