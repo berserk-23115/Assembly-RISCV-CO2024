@@ -1,8 +1,7 @@
-
 use std::collections::HashMap;
 use std::vec::Vec;
 fn format19(value: i32) -> String {
-    format!("{:019b}", value)   // format!("{:012b}", value)
+    format!("{:019b}", value) // format!("{:012b}", value)
 }
 pub fn twos_complement(input: &str) -> String {
     let mut s: String = String::new();
@@ -28,12 +27,15 @@ pub fn twos_complement(input: &str) -> String {
 }
 
 fn j_type(input_str: &str) {
-                                                                 // taking input string as parameter , output file header
-                                                                // hashmap for instructions in the instruction category
-    let instructions: HashMap<&str,&str>=[
-                                                                //instrtuction mneumonic, opcode, function code = NULL ;
-        ("jal","1101111")
-    ].iter().cloned().collect();
+    // taking input string as parameter , output file header
+    // hashmap for instructions in the instruction category
+    let instructions: HashMap<&str, &str> = [
+        //instrtuction mneumonic, opcode, function code = NULL ;
+        ("jal", "1101111"),
+    ]
+    .iter()
+    .cloned()
+    .collect();
 
     // hashmap for register along with its binary encoding(string)
     let registers: HashMap<&str, &str> = [
@@ -69,7 +71,6 @@ fn j_type(input_str: &str) {
         ("x29", "11101"),
         ("x30", "11110"),
         ("x31", "11111"),
-
         // ABI REPRESENTATION OF REGISTERS
         ("zero", "00000"),
         ("ra", "00001"),
@@ -104,26 +105,27 @@ fn j_type(input_str: &str) {
         ("t5", "11110"),
         ("t6", "11111"),
         ("fp", "01000"),
-    ].iter().cloned().collect();
+    ]
+    .iter()
+    .cloned()
+    .collect();
 
-    let opcode: Vec<&str> = input_str.split(" ").collect();                     
-    let instruction : &str = opcode[0];
-    let operands : Vec<&str> = opcode[1].split(",").collect();
-    let instruction_bin : &str = instructions[instruction];
-    let register_bin : &str = registers[operands[0]];
-    let immediate: i32= operands[1].parse().unwrap();
-    let mut immediate_bin :String;
-    if immediate>=0{
-        immediate_bin=format19(immediate);
+    let opcode: Vec<&str> = input_str.split(" ").collect();
+    let instruction: &str = my_array[0];
+    let operands: Vec<&str> = opcode[1].split(",").collect();
+    let instruction_bin: &str = instructions[instruction];
+    let register_bin: &str = registers[operands[0]];
+    let immediate: i32 = operands[1].parse().unwrap();
+    let mut immediate_bin: String;
+    if immediate >= 0 {
+        immediate_bin = format19(immediate);
+    } else {
+        immediate_bin = format19(immediate.abs());
+        immediate_bin = twos_complement(&immediate_bin);
     }
-    else{
-        immediate_bin=format19(immediate.abs());
-        immediate_bin=twos_complement(&immediate_bin);
-    }
-    println!("{} {} {}",immediate_bin,register_bin,instruction_bin);
-
+    println!("{} {} {}", immediate_bin, register_bin, instruction_bin);
 }
 fn main() {
-    let str1: &str = "jal t1,-32";
+    let str1: &str = "jal ra,-1024";
     j_type(str1);
 }

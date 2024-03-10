@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::prelude::*;
+// use std::fs::File;
+// use std::io::prelude::*;
 
 pub fn twos_complement(input: &str) -> String {
     let mut s: String = String::new();
@@ -25,24 +25,38 @@ pub fn twos_complement(input: &str) -> String {
 
     s.chars().rev().collect()
 }
-fn decimal_to_binary(decimal: u32) -> String {
-    format!("{:012b}", decimal)
+
+fn format11(value: i32) -> String {
+    format!("{:011b}", value) // format!("{:012b}", value)
 }
 
-fn main() {
-    let hash_map: HashMap<&str, Vec<&str>> = [
-        ("addi", vec!["0010011", "000"]),
-        ("lw", vec!["0000011", "010"]),
-        ("lb", vec!["0000011", "010"]),
-        ("lh", vec!["0000011", "010"]),
-        ("ld", vec!["0000011", "010"]),
-        ("sltiu", vec!["0010011", "011"]),
-        ("jalr", vec!["1100111", "000"]),
+fn i_type(input_str: &str) {
+    let instructions: HashMap<&str, &str> = [
+        ("addi", "0010011"),
+        ("lw", "0000011"),
+        // ("lb", "0000011"),
+        // ("lh", "0000011"),
+        // ("ld", "0000011"),
+        ("sltiu", "0010011"),
+        ("jalr", "1100111"),
     ]
     .iter()
     .cloned()
     .collect();
-    let hash_map2: HashMap<&str, &str> = [
+    let func_code: HashMap<&str, &str> = [
+        ("addi", "000"),
+        ("lw", "010"),
+        // ("lb", "010"),
+        // ("lh", "010"),
+        // ("ld", "010"),
+        ("sltiu", "011"),
+        ("jalr", "000"),
+    ]
+    .iter()
+    .cloned()
+    .collect();
+
+    let registers: HashMap<&str, &str> = [
         ("x0", "00000"),
         ("x1", "00001"),
         ("x2", "00010"),
@@ -114,33 +128,30 @@ fn main() {
     .cloned()
     .collect();
 
-    let mut file = File::open("text4.txt").expect("can't open the file");
-    let mut contents: String = String::new();
-    file.read_to_string(&mut contents).expect("oops cant ...");
+    let mut string_parsed: Vec<&str> = vec![];
+    string_parsed = input_str.split(" ").collect();
+    let mut opcode = string_parsed[0];
 
-    for line in contents.lines() {
-        println!("{line}");
-        let opcode: Vec<&str> = line.split(" ").collect();
-        let instruction: &str = opcode[0];
-        let operands: Vec<&str> = opcode[1].split(",").collect();
-        let instruction_bin: &Vec<&str> = &hash_map[instruction];
-        let register_bin: &str = &hash_map2[operands[0]];
-        let register_bin1: &str = &hash_map2[operands[1]];
-        if let r = hash_map2[operands[2]].parse().unwrap() >= 0 {
-            let register_bin2: &str = &decimal_to_binary(hash_map2[operands[2]].parse().unwrap());
-        } else {
-            let d: u32 = hash_map2[operands[2]].parse().unwrap().abs();
-            let register = decimal_to_binary(d);
-            let register_bin2: &str = &twos_complement(&register);
-        }
-        println!(
-            "{}{}{}{}{}{}",
-            instruction_bin[2],
-            register_bin2,
-            register_bin1,
-            instruction_bin[1],
-            register_bin,
-            instruction_bin[0]
-        );
+    let mut operands: Vec<&str> = vec![];
+    operands = string_parsed[1].split(",").collect();
+    let source_reg: &str = registers[operands[1]];
+    let des_reg: &str = registers[operands[0]];
+    let immediate: i32 = operands[2].parse().unwrap();
+    let mut immediate_bin: String;
+    if immediate >= 0 {
+        immediate_bin = format11(immediate);
+    } else {
+        immediate_bin = format11(immediate.abs());
+        immediate_bin = twos_complement(&immediate_bin);
     }
+    println!(
+        "{} {} {} {} {}",
+        immediate_bin, source_reg, func_code[opcode], des_reg, instructions[opcode]
+    );
 }
+
+fn main() {
+    let str1: &str = "jalr ra,a5,-7";
+    i_type(str1);
+}
+

@@ -4,12 +4,20 @@ pub fn remove_commas(input: &str) -> &str {
     input.trim_end_matches(',')
 }
 
-pub fn decimal_to_12bit_binary(decimal: u16) -> String {
+pub fn format11(decimal: i32) -> String {
+    format!("{:011b}", decimal)
+}
+
+pub fn format12(decimal: i32) -> String {
     format!("{:012b}", decimal)
 }
 
-pub fn format19(value: i32) -> String {
-    format!("{:019b}", value)
+pub fn format20(value: i32) -> String {
+    format!("{:020b}", value)
+}
+
+pub fn format32(value: i32) -> String {
+    format!("{:031b}", value)
 }
 
 pub fn twos_complement(input: &str) -> String {
@@ -45,9 +53,9 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
         vec!["beq", "bne", "blt", "bge", "bltu", "bgeu"],
         vec!["lui", "auipc"],
         vec!["jal"],
+        vec!["lw", "sw"],
         vec!["mul", "rst", "halt", "rvrs"],
     ];
-    let exception_instructions: Vec<&str> = vec!["lw", "sw"];
 
     let registers = vec![
         "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "fp", "s1", "a0", "a1", "a2", "a3",
@@ -58,30 +66,38 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
     ];
 
     let mut syntax_errors = Vec::new();
-    let mut ptr = 1;
 
-    for line in lines {
-        let length = line.len();
-        print!("{}", length);
-        if (instructions[0].contains(&line[0])
+    for (line_no, line) in lines.iter().enumerate() {
+        let instruction = line[0];
+        if instructions[0].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
-            && registers.contains(&line[3]))
-            || (instructions[1].contains(&line[0])
-                && registers.contains(&line[1])
-                && registers.contains(&line[2]))
+            && registers.contains(&line[3])
         {
-            syntax_errors.push(ptr);
+            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+        } else if (instructions[1].contains(&instruction) || instructions[5].contains(&instruction))
+            && registers.contains(&line[1])
+            && registers.contains(&line[2])
+        {
+            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+        } else if instructions[2].contains(&instruction)
+            && registers.contains(&line[1])
+            && registers.contains(&line[2])
+        {
+            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+        } else if (instructions[3].contains(&instruction) || instructions[4].contains(&instruction))
+            && registers.contains(&line[1])
+        {
+            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
         }
-        ptr += 1;
     }
 
-    if syntax_errors.is_empty() {
-        return false;
-    } else {
-        for line in syntax_errors {
-            print!("Syntax Error in line no: {}\n", line);
+    if !syntax_errors.is_empty() {
+        for error in &syntax_errors {
+            println!("{}", error);
         }
         return true;
     }
+
+    false
 }

@@ -80,7 +80,7 @@ fn main() {
         let mut s: String = String::new();
 
         let my_string = my_array[3];
-        let my_int: i16 = my_string.parse().unwrap();
+        let my_int: i32 = my_string.parse().unwrap();
         print!("{my_int}\n");
 
         let imm_binary = decimal_to_12bit_binary(my_int as u16);

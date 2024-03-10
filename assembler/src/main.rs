@@ -39,10 +39,6 @@ fn main() {
 
     let hash_map_I: HashMap<&str, Vec<&str>> = [
         ("addi", vec!["0010011", "000"]),
-        ("lw", vec!["0000011", "010"]),
-        ("lb", vec!["0000011", "010"]),
-        ("lh", vec!["0000011", "010"]),
-        ("ld", vec!["0000011", "010"]),
         ("sltiu", vec!["0010011", "011"]),
         ("jalr", vec!["1100111", "000"]),
     ]
@@ -148,22 +144,27 @@ fn main() {
     let mut arr: Vec<Vec<&str>> = vec![];
 
     for line in contents.lines() {
-        let mut my_array: Vec<&str> = vec![];
-        let x = line.split_whitespace();
-        for y in x {
-            let w: Vec<&str> = y.split(",").collect();
-            for z in w {
-                my_array.push(&z);
+        let mut my_array: Vec<&str> = Vec::new();
+        let mut label: Option<&str> = None;
+        for word in line.split_whitespace() {
+            let parts: Vec<&str> = word.split(',').collect();
+            for part in parts {
+                if part.ends_with(':') {
+                    label = Some(part);
+                } else {
+                    my_array.push(part);
+                }
             }
+        }
+        if let Some(l) = label {
+            my_array.push(l);
         }
         arr.push(my_array);
     }
 
-    // print!("{:?}", arr);
-
-    //if is_syntax_error(arr.clone()) {
-    //    exit(0);
-    //}
+    if is_syntax_error(arr.clone()) {
+        exit(0);
+    }
 
     let mut machine_code: Vec<String> = vec![];
 
@@ -171,16 +172,18 @@ fn main() {
         // print!("{:?}", line);
         if instructions[0].contains(&line[0]) {
             machine_code.push(rtype(&hash_map_R, &hash_map2, &line));
-        }
-        //else if instructions[0].contains(&line[1]) {
-        //  machine_code.push(itype(&hash_map_I, &hash_map2, &line));
-        //}
-        else if instructions[4].contains(&line[0]) {
+        } else if instructions[1].contains(&line[0]) {
+            machine_code.push(itype(&hash_map_I, &hash_map2, &line));
+        } else if instructions[2].contains(&line[0]) {
+            machine_code.push(stype(&hash_map2, &line))
+        } else if instructions[4].contains(&line[0]) {
             machine_code.push(utype(&hash_map_U, &hash_map2, &line));
+        } else if instructions[5].contains(&line[0]) {
+            machine_code.push(jtype(&hash_map_J, &hash_map2, &line));
         }
     }
 
     for line in machine_code {
-        print!("{line}\n");
+        print!("\n{line}\n");
     }
 }

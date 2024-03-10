@@ -137,6 +137,6 @@ fn s_type(input_str: &str) // taking input string as parameter , output file hea
     );
 }
 fn main() {
-    let st: &str = "sw ra,-32(sp)";
+    let st: &str = "sw ra,32(sp)";
     s_type(st);
 }
