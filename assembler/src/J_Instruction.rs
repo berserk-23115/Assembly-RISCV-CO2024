@@ -4,6 +4,28 @@ use std::vec::Vec;
 fn format19(value: i32) -> String {
     format!("{:019b}", value)   // format!("{:012b}", value)
 }
+pub fn twos_complement(input: &str) -> String {
+    let mut s: String = String::new();
+    let mut cnt = 0;
+    for ch in input.chars().rev() {
+        if cnt < 1 {
+            s.push(ch);
+        } else {
+            if ch == '0' {
+                s.push('1');
+            }
+            if ch == '1' {
+                s.push('0');
+            }
+        }
+
+        if cnt < 1 && ch == '1' {
+            cnt += 1;
+        }
+    }
+
+    s.chars().rev().collect()
+}
 
 fn j_type(input_str: &str) {
                                                                  // taking input string as parameter , output file header
@@ -84,21 +106,24 @@ fn j_type(input_str: &str) {
         ("fp", "01000"),
     ].iter().cloned().collect();
 
-    let opcode: Vec<&str> = input_str.split(" ").collect();
+    let opcode: Vec<&str> = input_str.split(" ").collect();                     
     let instruction : &str = opcode[0];
     let operands : Vec<&str> = opcode[1].split(",").collect();
     let instruction_bin : &str = instructions[instruction];
     let register_bin : &str = registers[operands[0]];
-    let immediate_bin : String = format19(operands[1].parse().unwrap());
+    let immediate: i32= operands[1].parse().unwrap();
+    let mut immediate_bin :String;
+    if immediate>=0{
+        immediate_bin=format19(immediate);
+    }
+    else{
+        immediate_bin=format19(immediate.abs());
+        immediate_bin=twos_complement(&immediate_bin);
+    }
     println!("{} {} {}",immediate_bin,register_bin,instruction_bin);
-
-
-
-    
-
 
 }
 fn main() {
-    let str1: &str = "jal t1,32";
+    let str1: &str = "jal t1,-32";
     j_type(str1);
 }

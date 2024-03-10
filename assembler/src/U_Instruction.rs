@@ -1,12 +1,31 @@
+
 // header files
 use std::collections::HashMap;
 
-/*
-
-IC DESREG IMM
- */
 fn format19(value: i32) -> String {
-    format!("{:019b}", value) // format!("{:012b}", value)
+    format!("{:019b}", value)   // format!("{:012b}", value)
+}
+pub fn twos_complement(input: &str) -> String {
+    let mut s: String = String::new();
+    let mut cnt = 0;
+    for ch in input.chars().rev() {
+        if cnt < 1 {
+            s.push(ch);
+        } else {
+            if ch == '0' {
+                s.push('1');
+            }
+            if ch == '1' {
+                s.push('0');
+            }
+        }
+
+        if cnt < 1 && ch == '1' {
+            cnt += 1;
+        }
+    }
+
+    s.chars().rev().collect()
 }
 
 fn u_type(input_str: &str) {
@@ -28,18 +47,24 @@ fn u_type(input_str: &str) {
         ("x3", "00011"),
         ("x4", "00100"),
         ("x5", "00101"),
+
         ("x6", "00110"),
         ("x7", "00111"),
+
         ("x8", "01000"),
         ("x9", "01001"),
+
         ("x10", "01010"),
         ("x11", "01011"),
+
         ("x12", "01100"),
         ("x13", "01101"),
         ("x14", "01110"),
         ("x15", "01111"),
+
         ("x16", "10000"),
         ("x17", "10001"),
+
         ("x18", "10010"),
         ("x19", "10011"),
         ("x20", "10100"),
@@ -50,6 +75,7 @@ fn u_type(input_str: &str) {
         ("x25", "11001"),
         ("x26", "11010"),
         ("x27", "11011"),
+
         ("x28", "11100"),
         ("x29", "11101"),
         ("x30", "11110"),
@@ -97,13 +123,19 @@ fn u_type(input_str: &str) {
     let operands: Vec<&str> = opcode[1].split(",").collect();
     let instruction_bin: &str = instructions[instruction];
     let dest_register_bin: &str = registers[operands[0]];
-    let immediate_bin: String = format19(operands[1].parse().unwrap());
-    println!(
-        "{} {} {}",
-        immediate_bin, dest_register_bin, instruction_bin
-    );
+    // let immediate_bin: String = format19(operands[1].parse().unwrap());
+    let immediate: i32= operands[1].parse().unwrap();
+    let mut immediate_bin :String;
+    if immediate>=0{
+        immediate_bin=format19(immediate);
+    }
+    else{
+        immediate_bin=format19(immediate.abs());
+        immediate_bin=twos_complement(&immediate_bin);
+    }
+    println!("{} {} {}", immediate_bin, dest_register_bin, instruction_bin);
 }
 fn main() {
-    let str1: &str = "auipc s2,30";
+    let str1: &str = "auipc s2,-30";
     u_type(str1);
 }
