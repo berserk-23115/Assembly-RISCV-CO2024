@@ -1,8 +1,6 @@
 use crate::helper_functions::*;
 
 use std::collections::HashMap;
-use std::fmt::write;
-use std::io::prelude::*;
 
 pub fn rtype(
     hash_map: &HashMap<&str, Vec<&str>>,
@@ -47,7 +45,6 @@ pub fn itype(
         } else {
             immediate_bin = format12(imm);
         }
-        print!("{immediate_bin}");
 
         s.push_str(&immediate_bin);
         s.push_str(hash_map2[source_reg]);
@@ -102,6 +99,38 @@ pub fn stype(hash_map2: &HashMap<&str, &str>, my_array: &Vec<&str>) -> String {
     s.push_str("010");
     s.push_str(&immediate_bin[7..]);
     s.push_str("0100011");
+
+    s
+}
+
+pub fn btype(
+    hash_map: &HashMap<&str, Vec<&str>>,
+    hash_map2: &HashMap<&str, &str>,
+    my_array: &Vec<&str>,
+) -> String {
+    let mut s = String::new();
+
+    let src_register1 = hash_map2[my_array[2]];
+    let src_register2 = hash_map2[my_array[1]];
+    let instruction = &hash_map[my_array[0]];
+    let imm: i32 = my_array[3].parse().unwrap();
+
+    let mut immediate_bin: String;
+    if imm < 0 {
+        immediate_bin = format12(imm.abs());
+        immediate_bin = twos_complement(&immediate_bin);
+    } else {
+        immediate_bin = format12(imm);
+    }
+
+    s.push_str(&immediate_bin[0..7]);
+    s.push_str(src_register2);
+    s.push_str(src_register1);
+    s.push_str(instruction[1]);
+    s.push_str(&immediate_bin[7..]);
+    s.push_str(instruction[0]);
+
+    println!("{s}");
 
     s
 }

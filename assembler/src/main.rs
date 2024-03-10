@@ -162,20 +162,23 @@ fn main() {
         arr.push(my_array);
     }
 
-    if is_syntax_error(arr.clone()) {
-        exit(0);
-    }
+    // print!("{:?}", arr);
+
+    // if is_syntax_error(arr.clone()) {
+    //    exit(0);
+    // }
 
     let mut machine_code: Vec<String> = vec![];
 
     for line in arr {
-        // print!("{:?}", line);
         if instructions[0].contains(&line[0]) {
             machine_code.push(rtype(&hash_map_R, &hash_map2, &line));
         } else if instructions[1].contains(&line[0]) {
             machine_code.push(itype(&hash_map_I, &hash_map2, &line));
         } else if instructions[2].contains(&line[0]) {
             machine_code.push(stype(&hash_map2, &line))
+        } else if instructions[3].contains(&line[0]) {
+            machine_code.push(btype(&hash_map_B, &hash_map2, &line))
         } else if instructions[4].contains(&line[0]) {
             machine_code.push(utype(&hash_map_U, &hash_map2, &line));
         } else if instructions[5].contains(&line[0]) {
@@ -183,7 +186,13 @@ fn main() {
         }
     }
 
-    for line in machine_code {
-        print!("\n{line}\n");
+    // for line in machine_code {
+    //     print!("\n{line}\n");
+    // }
+    let filename = "output.txt";
+
+    match write_output(filename, &machine_code.clone()) {
+        Ok(_) => println!("Contents written to {}", filename),
+        Err(err) => eprintln!("Error writing to file: {}", err),
     }
 }

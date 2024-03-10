@@ -1,5 +1,8 @@
 use crate::instructions;
 
+use std::fs::File;
+use std::io::{self, Write};
+
 pub fn remove_commas(input: &str) -> &str {
     input.trim_end_matches(',')
 }
@@ -100,4 +103,14 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
     }
 
     false
+}
+
+pub fn write_output(filename: &str, data: &Vec<String>) -> io::Result<()> {
+    let mut file = File::create(filename)?;
+
+    for item in data {
+        writeln!(file, "{}", item)?;
+    }
+
+    Ok(())
 }
