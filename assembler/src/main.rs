@@ -164,9 +164,9 @@ fn main() {
 
     // print!("{:?}", arr);
 
-    // if is_syntax_error(arr.clone()) {
-    //    exit(0);
-    // }
+    if is_syntax_error(arr.clone()) {
+        exit(0);
+    }
 
     let mut machine_code: Vec<String> = vec![];
 

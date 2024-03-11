@@ -23,6 +23,14 @@ pub fn format32(value: i32) -> String {
     format!("{:031b}", value)
 }
 
+pub fn check_range(value: &str, range: u32) -> bool {
+    let value: f32 = value.parse().unwrap();
+    if value >= 0.5_f32.powf(range as f32) && value < 2.0_f32.powf(range as f32) {
+        return true;
+    }
+    false
+}
+
 pub fn twos_complement(input: &str) -> String {
     let mut s: String = String::new();
     let mut cnt = 0;
@@ -71,26 +79,46 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
     let mut syntax_errors = Vec::new();
 
     for (line_no, line) in lines.iter().enumerate() {
+        println!("{:?}", line);
         let instruction = line[0];
         if instructions[0].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
             && registers.contains(&line[3])
         {
-            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
-        } else if (instructions[1].contains(&instruction) || instructions[5].contains(&instruction))
+            print!("");
+        } else if instructions[1].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
+            && check_range(&line[3], 11)
         {
-            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+            print!("Pass2");
+        } else if instructions[5].contains(&instruction) && registers.contains(&line[1]) {
+            let imm_and_source_reg: Vec<&str> = line[2].split("(").collect();
+            let source_reg: &str = imm_and_source_reg[1];
+            let source_reg: &str = &source_reg.replace(")", "");
+
+            if check_range(&imm_and_source_reg[0], 11) && registers.contains(&source_reg) {
+                print!("Pass3");
+            } else {
+                syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+            }
         } else if instructions[2].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
         {
-            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
-        } else if (instructions[3].contains(&instruction) || instructions[4].contains(&instruction))
+            print!("Pass4");
+        } else if instructions[3].contains(&instruction)
             && registers.contains(&line[1])
+            && check_range(&line[2], 31)
         {
+            print!("Pass5");
+        } else if instructions[4].contains(&instruction)
+            && registers.contains(&line[1])
+            && check_range(&line[2], 20)
+        {
+            print!("Pass6");
+        } else {
             syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
         }
     }

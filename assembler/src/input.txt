@@ -1,5 +1,5 @@
-add ra,t0,gp
-sub t1,s0,a0
+sub4 t1,s0,a0
+sw t5,200000000000(gp)
 sll a1,t2,t3
 slt s1,a2,s2
 sltu s3,a3,s4
