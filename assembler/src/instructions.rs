@@ -150,8 +150,8 @@ pub fn btype(
 
     s.push_str(&immediate_bin[0..1]);
     s.push_str(&immediate_bin[2..9]);
-    s.push_str(src_register2);
     s.push_str(src_register1);
+    s.push_str(src_register2);
     s.push_str(instruction[1]);
     s.push_str(&immediate_bin[8..11]);
     s.push_str(&immediate_bin[1..2]);
