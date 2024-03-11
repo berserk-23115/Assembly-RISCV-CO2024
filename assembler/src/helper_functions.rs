@@ -25,7 +25,7 @@ pub fn format32(value: i32) -> String {
 
 pub fn check_range(value: &str, range: u32) -> bool {
     let value: f32 = value.parse().unwrap();
-    if value >= 0.5_f32.powf(range as f32) && value < 2.0_f32.powf(range as f32) {
+    if value >= -2.0_f32.powf(range as f32) && value < 2.0_f32.powf(range as f32) {
         return true;
     }
     false

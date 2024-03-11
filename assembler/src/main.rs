@@ -142,27 +142,33 @@ fn main() {
     file.read_to_string(&mut contents).expect("oops cant ...");
 
     let mut arr: Vec<Vec<&str>> = vec![];
-
+    let mut hash_map_labels: HashMap<&str, i32> = HashMap::new();
+    let mut code_line: i32 = 0;
+    let label: &str = "";
     for line in contents.lines() {
         let mut my_array: Vec<&str> = Vec::new();
-        let mut label: Option<&str> = None;
+        // let label: Option<&str> = None;
+        code_line = code_line + 1;
         for word in line.split_whitespace() {
             let parts: Vec<&str> = word.split(',').collect();
             for part in parts {
                 if part.ends_with(':') {
-                    label = Some(part);
+                    // label = part;
+                    // let label: &str = &label.replace(":", "");
+                    hash_map_labels.insert(&part[..(part.len() - 1)], code_line);
                 } else {
                     my_array.push(part);
                 }
             }
         }
-        if let Some(l) = label {
-            my_array.push(l);
-        }
+
+        // if let Some(l) = label {
+        //     my_array.push(l);
+        // }
         arr.push(my_array);
     }
 
-    // print!("{:?}", arr);
+    print!("{:?}", hash_map_labels);
 
     if is_syntax_error(arr.clone()) {
         exit(0);
