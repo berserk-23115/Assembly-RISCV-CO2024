@@ -8,7 +8,7 @@ RISC V is an open-source Instruction Set Architecture developed by RISCV Foundat
 #### Error Detection : 
 
 Invalid Instruction\
-Invalid Register Decalaration\
+Invalid Register Declaration\
 Missing Virtual Halt Instruction\
 Virtual Halt Instruction not used as terminatory instruction\
 Immediate passed is out of bounds
