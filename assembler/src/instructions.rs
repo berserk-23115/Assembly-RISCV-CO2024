@@ -132,19 +132,19 @@ pub fn btype(
         let imm: i32 = my_array[3].parse().unwrap();
 
         if imm < 0 {
-            immediate_bin = format12(imm.abs());
+            immediate_bin = format13(imm.abs());
             immediate_bin = twos_complement(&immediate_bin);
         } else {
-            immediate_bin = format12(imm);
+            immediate_bin = format13(imm);
         }
     } else {
-        let imm: i32 = (hash_map_labels[my_array[3]] - current_line) * 4;
+        let imm: i32 = (current_line - hash_map_labels[my_array[3]]) * 4;
 
         if imm < 0 {
-            immediate_bin = format12(imm.abs());
+            immediate_bin = format13(imm.abs());
             immediate_bin = twos_complement(&immediate_bin);
         } else {
-            immediate_bin = format12(imm);
+            immediate_bin = format13(imm);
         }
     }
 

@@ -14,7 +14,9 @@ pub fn format11(decimal: i32) -> String {
 pub fn format12(decimal: i32) -> String {
     format!("{:012b}", decimal)
 }
-
+pub fn format13(decimal: i32) -> String {
+    format!("{:013b}", decimal)
+}
 pub fn format20(value: i32) -> String {
     format!("{:020b}", value)
 }
