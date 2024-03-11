@@ -61,9 +61,9 @@ pub fn itype(
     let immediate: i32 = my_array[3].parse().unwrap();
     let mut immediate_bin: String;
     if immediate >= 0 {
-        immediate_bin = format11(immediate);
+        immediate_bin = format12(immediate);
     } else {
-        immediate_bin = format11(immediate.abs());
+        immediate_bin = format12(immediate.abs());
         immediate_bin = twos_complement(&immediate_bin);
     }
 
