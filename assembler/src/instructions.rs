@@ -111,6 +111,7 @@ pub fn btype(
     current_line: i32
 ) -> String {
     let mut s = String::new();
+
     let src_register1 = hash_map2[my_array[2]];
     let src_register2 = hash_map2[my_array[1]];
     let instruction = &hash_map[my_array[0]];
@@ -182,11 +183,16 @@ pub fn jtype(
         immediate_bin = format20(immediate.abs());
         immediate_bin = twos_complement(&immediate_bin);
     }
-
-    s.push_str(&immediate_bin[8..19]);
-    s.push_str(&immediate_bin[0..9]);
+    s.push_str(&immediate_bin[0]);              //20th bit
+    s.push_str(&immediate_bin[9..18]);
+    s.push_str(&immediate_bin[8]);
+    s.push_str(&immediate_bin[0:7]);
     s.push_str(register_bin);
     s.push_str(instruction_bin);
+    // s.push_str(&immediate_bin[8..19]);
+    // s.push_str(&immediate_bin[0..9]);
+    // s.push_str(register_bin);
+    // s.push_str(instruction_bin);
 
     s
 }
