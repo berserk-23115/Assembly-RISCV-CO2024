@@ -107,13 +107,15 @@ pub fn btype(
     hash_map: &HashMap<&str, Vec<&str>>,
     hash_map2: &HashMap<&str, &str>,
     my_array: &Vec<&str>,
+    hash_map_lables :&HashMap<&str,i32>,
+    current_line: i32
 ) -> String {
     let mut s = String::new();
-
     let src_register1 = hash_map2[my_array[2]];
     let src_register2 = hash_map2[my_array[1]];
     let instruction = &hash_map[my_array[0]];
-    let imm: i32 = my_array[3].parse().unwrap();
+    // let imm: i32 = my_array[3].parse().unwrap();
+    let imm:i32 = (current_line-hash_map_labels[my_array[3]])*4;
 
     let mut immediate_bin: String;
     if imm < 0 {
