@@ -138,7 +138,7 @@ pub fn btype(
             immediate_bin = format12(imm);
         }
     } else {
-        let imm: i32 = (current_line - hash_map_labels[my_array[3]]) * 4;
+        let imm: i32 = (hash_map_labels[my_array[3]] - current_line) * 4;
 
         if imm < 0 {
             immediate_bin = format12(imm.abs());
@@ -149,11 +149,11 @@ pub fn btype(
     }
 
     s.push_str(&immediate_bin[0..1]);
-    s.push_str(&immediate_bin[0..7]);
+    s.push_str(&immediate_bin[2..9]);
     s.push_str(src_register2);
     s.push_str(src_register1);
     s.push_str(instruction[1]);
-    s.push_str(&immediate_bin[7..]);
+    s.push_str(&immediate_bin[8..11]);
     s.push_str(&immediate_bin[1..2]);
     s.push_str(instruction[0]);
 
