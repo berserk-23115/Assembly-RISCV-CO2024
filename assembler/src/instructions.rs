@@ -107,7 +107,7 @@ pub fn btype(
     hash_map: &HashMap<&str, Vec<&str>>,
     hash_map2: &HashMap<&str, &str>,
     my_array: &Vec<&str>,
-    hash_map_lables :&HashMap<&str,i32>,
+    hash_map_labels :&HashMap<&str,i32>,
     current_line: i32
 ) -> String {
     let mut s = String::new();
@@ -183,10 +183,10 @@ pub fn jtype(
         immediate_bin = format20(immediate.abs());
         immediate_bin = twos_complement(&immediate_bin);
     }
-    s.push_str(&immediate_bin[0]);              //20th bit
-    s.push_str(&immediate_bin[9..18]);
-    s.push_str(&immediate_bin[8]);
-    s.push_str(&immediate_bin[0:7]);
+    s.push_str(&immediate_bin[0..1]);              //20th bit
+    s.push_str(&immediate_bin[8..18]);
+    s.push_str(&immediate_bin[7..8]);
+    s.push_str(&immediate_bin[0..7]);
     s.push_str(register_bin);
     s.push_str(instruction_bin);
     // s.push_str(&immediate_bin[8..19]);
