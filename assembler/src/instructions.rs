@@ -130,8 +130,6 @@ pub fn btype(
     s.push_str(&immediate_bin[7..]);
     s.push_str(instruction[0]);
 
-    println!("{s}");
-
     s
 }
 
