@@ -27,7 +27,7 @@ pub fn twos_complement(input: &str) -> String {
 }
 
 fn format11(value: i32) -> String {
-    format!("{:011b}", value) // format!("{:012b}", value)
+    format!("{:012b}", value) // format!("{:012b}", value)
 }
 
 fn i_type(input_str: &str) {
@@ -151,7 +151,6 @@ fn i_type(input_str: &str) {
 }
 
 fn main() {
-    let str1: &str = "jalr ra,a5,-7";
+    let str1: &str = "addi s6,s7,25";
     i_type(str1);
 }
-

@@ -79,7 +79,6 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
     let mut syntax_errors = Vec::new();
 
     for (line_no, line) in lines.iter().enumerate() {
-        println!("{:?}", line);
         let instruction = line[0];
         if instructions[0].contains(&instruction)
             && registers.contains(&line[1])
@@ -92,14 +91,14 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
             && registers.contains(&line[2])
             && check_range(&line[3], 11)
         {
-            print!("Pass2");
+            print!("");
         } else if instructions[5].contains(&instruction) && registers.contains(&line[1]) {
             let imm_and_source_reg: Vec<&str> = line[2].split("(").collect();
             let source_reg: &str = imm_and_source_reg[1];
             let source_reg: &str = &source_reg.replace(")", "");
 
             if check_range(&imm_and_source_reg[0], 11) && registers.contains(&source_reg) {
-                print!("Pass3");
+                print!("");
             } else {
                 syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
             }
@@ -107,17 +106,17 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
             && registers.contains(&line[1])
             && registers.contains(&line[2])
         {
-            print!("Pass4");
+            print!("");
         } else if instructions[3].contains(&instruction)
             && registers.contains(&line[1])
             && check_range(&line[2], 31)
         {
-            print!("Pass5");
+            print!("");
         } else if instructions[4].contains(&instruction)
             && registers.contains(&line[1])
             && check_range(&line[2], 20)
         {
-            print!("Pass6");
+            print!("");
         } else {
             syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
         }
