@@ -175,9 +175,9 @@ fn main() {
     }
 
     let mut machine_code: Vec<String> = vec![];
-    let mut current_line:i32 = 0;
+    let mut current_line: i32 = 0;
     for line in arr {
-        current_line+=1;
+        current_line += 1;
         if instructions[0].contains(&line[0]) {
             machine_code.push(rtype(&hash_map_R, &hash_map2, &line));
         } else if instructions[1].contains(&line[0]) {
@@ -185,7 +185,13 @@ fn main() {
         } else if instructions[2].contains(&line[0]) {
             machine_code.push(stype(&hash_map2, &line))
         } else if instructions[3].contains(&line[0]) {
-            machine_code.push(btype(&hash_map_B, &hash_map2, &line,&hash_map_labels,current_line))
+            machine_code.push(btype(
+                &hash_map_B,
+                &hash_map2,
+                &line,
+                &hash_map_labels,
+                current_line,
+            ))
         } else if instructions[4].contains(&line[0]) {
             machine_code.push(utype(&hash_map_U, &hash_map2, &line));
         } else if instructions[5].contains(&line[0]) {

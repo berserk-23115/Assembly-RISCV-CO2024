@@ -117,21 +117,44 @@ pub fn btype(
     let instruction = &hash_map[my_array[0]];
     // let imm: i32 = my_array[3].parse().unwrap();
     //println!("{}", my_array[3]);
-    let imm: i32 = (current_line - hash_map_labels["start"]) * 4;
-
-    let mut immediate_bin: String;
-    if imm < 0 {
-        immediate_bin = format12(imm.abs());
-        immediate_bin = twos_complement(&immediate_bin);
-    } else {
-        immediate_bin = format12(imm);
+    let mut flag: bool = false;
+    match my_array[3].parse::<i32>() {
+        Ok(_) => {
+            flag = true;
+        }
+        Err(_) => {
+            flag = false;
+        }
     }
 
+    let mut immediate_bin: String;
+    if flag == true {
+        let imm: i32 = my_array[3].parse().unwrap();
+
+        if imm < 0 {
+            immediate_bin = format12(imm.abs());
+            immediate_bin = twos_complement(&immediate_bin);
+        } else {
+            immediate_bin = format12(imm);
+        }
+    } else {
+        let imm: i32 = (current_line - hash_map_labels[my_array[3]]) * 4;
+
+        if imm < 0 {
+            immediate_bin = format12(imm.abs());
+            immediate_bin = twos_complement(&immediate_bin);
+        } else {
+            immediate_bin = format12(imm);
+        }
+    }
+
+    s.push_str(&immediate_bin[0..1]);
     s.push_str(&immediate_bin[0..7]);
     s.push_str(src_register2);
     s.push_str(src_register1);
     s.push_str(instruction[1]);
     s.push_str(&immediate_bin[7..]);
+    s.push_str(&immediate_bin[1..2]);
     s.push_str(instruction[0]);
 
     s
