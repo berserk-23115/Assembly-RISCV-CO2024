@@ -116,7 +116,8 @@ pub fn btype(
     let src_register2 = hash_map2[my_array[1]];
     let instruction = &hash_map[my_array[0]];
     // let imm: i32 = my_array[3].parse().unwrap();
-    let imm: i32 = (current_line - hash_map_labels[my_array[3]]) * 4;
+    //println!("{}", my_array[3]);
+    let imm: i32 = (current_line - hash_map_labels["start"]) * 4;
 
     let mut immediate_bin: String;
     if imm < 0 {
