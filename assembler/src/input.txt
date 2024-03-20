@@ -1,7 +1,19 @@
-start: lui t0,100
-    addi t1,t0,-50
-    bltu t2,t1,start
-    addi t2,t1,20
-    add t3,t1,t2
-    jal gp,-512
-    jalr t4,t0,0
+lui s0,-2048
+auipc s1,4096
+jal sp,label2
+addi s2,zero,-1020
+sw s2,0(s0)
+lw s3,0(gp)
+label2: blt s4,s1,48
+bgeu s5,s1,96
+lui s0,4096
+auipc s1,8192
+jal a4,label4
+addi s2,zero,-409
+sw s2,0(s0)
+lw s3,0(s0)
+label4: add s4,s0,s1
+or s5,s0,s1
+bgeu s5,s1,label2
+jal a4,label4
+beq zero,zero,0
