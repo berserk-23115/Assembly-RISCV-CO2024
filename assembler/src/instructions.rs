@@ -202,9 +202,9 @@ pub fn jtype(
     let immediate: i32 = my_array[2].parse().unwrap();
     let mut immediate_bin: String;
     if immediate >= 0 {
-        immediate_bin = format20(immediate);
+        immediate_bin = format32(immediate);
     } else {
-        immediate_bin = format20(immediate.abs());
+        immediate_bin = format32(immediate.abs());
         immediate_bin = twos_complement(&immediate_bin);
     }
     s.push_str(&immediate_bin[0..1]); //20th bit
