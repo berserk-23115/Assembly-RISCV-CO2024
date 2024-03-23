@@ -148,12 +148,14 @@ pub fn btype(
         }
     }
 
+    print!("{immediate_bin}");
+
     s.push_str(&immediate_bin[0..1]);
-    s.push_str(&immediate_bin[2..9]);
+    s.push_str(&immediate_bin[2..8]);
     s.push_str(src_register1);
     s.push_str(src_register2);
     s.push_str(instruction[1]);
-    s.push_str(&immediate_bin[8..11]);
+    s.push_str(&immediate_bin[8..12]);
     s.push_str(&immediate_bin[1..2]);
     s.push_str(instruction[0]);
 
@@ -181,8 +183,9 @@ pub fn utype(
     if immediate_bin.len() < 31 {
         immediate_bin = format!("{:0>31}", immediate_bin);
     }
+    print!("{immediate_bin}");
 
-    s.push_str(&immediate_bin[0..20]);
+    s.push_str(&immediate_bin[0..19]);
     s.push_str(dest_register_bin);
     s.push_str(instruction_bin);
 
@@ -202,15 +205,15 @@ pub fn jtype(
     let immediate: i32 = my_array[2].parse().unwrap();
     let mut immediate_bin: String;
     if immediate >= 0 {
-        immediate_bin = format32(immediate);
+        immediate_bin = format20(immediate);
     } else {
-        immediate_bin = format32(immediate.abs());
+        immediate_bin = format20(immediate.abs());
         immediate_bin = twos_complement(&immediate_bin);
     }
     s.push_str(&immediate_bin[0..1]); //20th bit
-    s.push_str(&immediate_bin[8..19]);
-    s.push_str(&immediate_bin[7..8]);
-    s.push_str(&immediate_bin[0..7]);
+    s.push_str(&immediate_bin[10..20]);
+    s.push_str(&immediate_bin[9..10]);
+    s.push_str(&immediate_bin[1..9]);
     s.push_str(register_bin);
     s.push_str(instruction_bin);
     // s.push_str(&immediate_bin[8..19]);

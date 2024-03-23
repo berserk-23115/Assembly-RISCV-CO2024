@@ -1,2 +1,7 @@
-jal ra,2048
+blt t0,t1,10
+bge t0,t1,20
+beq t0,t1,30
+bgeu t0,t1,40
+bltu t0,t1,50
+bne t0,t1,60
 beq zero,zero,0
