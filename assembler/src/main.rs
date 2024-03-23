@@ -168,7 +168,7 @@ fn main() {
         arr.push(my_array);
     }
 
-    // print!("{:?}", hash_map_labels);
+    print!("{:?}", hash_map_labels);
     // print!("{:?}", arr[arr.len() - 1]);
 
     if is_syntax_error(arr.clone()) || arr[arr.len() - 1] != vec!["beq", "zero", "zero", "0"] {
@@ -197,7 +197,13 @@ fn main() {
         } else if instructions[4].contains(&line[0]) {
             machine_code.push(utype(&hash_map_U, &hash_map2, &line));
         } else if instructions[5].contains(&line[0]) {
-            machine_code.push(jtype(&hash_map_J, &hash_map2, &line));
+            machine_code.push(jtype(
+                &hash_map_J,
+                &hash_map2,
+                &line,
+                &hash_map_labels,
+                current_line,
+            ));
         }
     }
 

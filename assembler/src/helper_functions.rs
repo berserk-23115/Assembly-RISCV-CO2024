@@ -114,10 +114,7 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
             && check_range(&line[2], 31)
         {
             print!("");
-        } else if instructions[4].contains(&instruction)
-            && registers.contains(&line[1])
-            && check_range(&line[2], 20)
-        {
+        } else if instructions[4].contains(&instruction) && registers.contains(&line[1]) {
             print!("");
         } else {
             syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));

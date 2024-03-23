@@ -138,7 +138,7 @@ pub fn btype(
             immediate_bin = format13(imm);
         }
     } else {
-        let imm: i32 = (current_line - hash_map_labels[my_array[3]]) * 4;
+        let imm: i32 = (hash_map_labels[my_array[3]] - current_line) * 4;
 
         if imm < 0 {
             immediate_bin = format13(imm.abs());
@@ -147,6 +147,7 @@ pub fn btype(
             immediate_bin = format13(imm);
         }
     }
+    print!("{immediate_bin}\n");
 
     s.push_str(&immediate_bin[0..1]);
     s.push_str(&immediate_bin[2..8]);
@@ -193,20 +194,46 @@ pub fn jtype(
     hash_map: &HashMap<&str, &str>,
     hash_map2: &HashMap<&str, &str>,
     my_array: &Vec<&str>,
+    hash_map_labels: &HashMap<&str, i32>,
+    current_line: i32,
 ) -> String {
     let mut s: String = String::new();
+
+    let mut flag: bool = false;
+    match my_array[2].parse::<i32>() {
+        Ok(_) => {
+            flag = true;
+        }
+        Err(_) => {
+            flag = false;
+        }
+    }
+
+    let mut immediate_bin: String;
+    if flag == true {
+        let imm: i32 = my_array[2].parse().unwrap();
+
+        if imm < 0 {
+            immediate_bin = format20(imm.abs());
+            immediate_bin = twos_complement(&immediate_bin);
+        } else {
+            immediate_bin = format20(imm);
+        }
+    } else {
+        let imm: i32 = (hash_map_labels[my_array[2]] - current_line) * 4;
+
+        if imm < 0 {
+            immediate_bin = format20(imm.abs());
+            immediate_bin = twos_complement(&immediate_bin);
+        } else {
+            immediate_bin = format20(imm);
+        }
+    }
 
     let instruction: &str = my_array[0];
     let instruction_bin: &str = hash_map[instruction];
     let register_bin: &str = hash_map2[my_array[1]];
-    let immediate: i32 = my_array[2].parse().unwrap();
-    let mut immediate_bin: String;
-    if immediate >= 0 {
-        immediate_bin = format20(immediate);
-    } else {
-        immediate_bin = format20(immediate.abs());
-        immediate_bin = twos_complement(&immediate_bin);
-    }
+
     s.push_str(&immediate_bin[0..1]); //20th bit
     s.push_str(&immediate_bin[10..20]);
     s.push_str(&immediate_bin[9..10]);

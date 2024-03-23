@@ -1,7 +1,21 @@
-blt t0,t1,10
-bge t0,t1,20
-beq t0,t1,30
-bgeu t0,t1,40
-bltu t0,t1,50
-bne t0,t1,60
-beq zero,zero,0
+lui t0,100
+addi t1,t0,50
+beq t0,zero,loop
+addi t2,t1,30
+bne t2,zero,end
+lw t3,0(t0)
+bge a3,t1,loop
+blt t3,t2,loop
+sw t3,-10(t2)
+bltu t3,t0,loop
+jalr t4,t3,0
+end: jal ra,label
+loop: add t5,t1,t2
+sltiu t6,gp,100
+xor a7,t2,t3
+or a3,t4,t5
+bltu a7,a6,49
+bgeu t5,t3,-16
+slt s6,s8,a7
+bne t2,t1,end
+label: beq zero,zero,0
