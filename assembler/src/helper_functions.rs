@@ -22,7 +22,7 @@ pub fn format20(value: i32) -> String {
 }
 
 pub fn format32(value: i32) -> String {
-    format!("{:031b}", value)
+    format!("{:032b}", value)
 }
 
 pub fn check_range(value: &str, range: u32) -> bool {

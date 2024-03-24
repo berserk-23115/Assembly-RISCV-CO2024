@@ -147,7 +147,6 @@ pub fn btype(
             immediate_bin = format13(imm);
         }
     }
-    print!("{immediate_bin}\n");
 
     s.push_str(&immediate_bin[0..1]);
     s.push_str(&immediate_bin[2..8]);
@@ -182,6 +181,7 @@ pub fn utype(
     if immediate_bin.len() < 31 {
         immediate_bin = format!("{:0>31}", immediate_bin);
     }
+    print!("{immediate_bin}");
 
     s.push_str(&immediate_bin[0..20]);
     s.push_str(dest_register_bin);
