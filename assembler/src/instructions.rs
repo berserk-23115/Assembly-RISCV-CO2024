@@ -183,7 +183,7 @@ pub fn utype(
         immediate_bin = format!("{:0>31}", immediate_bin);
     }
 
-    s.push_str(&immediate_bin[0..19]);
+    s.push_str(&immediate_bin[0..20]);
     s.push_str(dest_register_bin);
     s.push_str(instruction_bin);
 
