@@ -18,7 +18,7 @@ pub fn format13(decimal: i32) -> String {
     format!("{:013b}", decimal)
 }
 pub fn format20(value: i32) -> String {
-    format!("{:020b}", value)
+    format!("{:021b}", value)
 }
 
 pub fn format32(value: i32) -> String {
@@ -130,6 +130,13 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
 
     false
 }
+
+// pub fn check_virtual_halt(lines: Vec<Vec<&str>>){
+// let size =
+// for (line_no, line) in lines.iter().enumerate() {
+// println!("");
+// }
+// }
 
 pub fn write_output(filename: &str, data: &Vec<String>) -> io::Result<()> {
     let mut file = File::create(filename)?;

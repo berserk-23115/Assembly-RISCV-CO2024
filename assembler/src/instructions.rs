@@ -234,6 +234,8 @@ pub fn jtype(
     let instruction_bin: &str = hash_map[instruction];
     let register_bin: &str = hash_map2[my_array[1]];
 
+    print!("\n{immediate_bin}\n");
+
     s.push_str(&immediate_bin[0..1]); //20th bit
     s.push_str(&immediate_bin[10..20]);
     s.push_str(&immediate_bin[9..10]);
