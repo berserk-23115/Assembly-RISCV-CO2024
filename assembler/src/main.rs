@@ -168,11 +168,13 @@ fn main() {
         arr.push(my_array);
     }
 
-    print!("{:?}", hash_map_labels);
+    // print!("{:?}", hash_map_labels);
     // print!("{:?}", arr[arr.len() - 1]);
 
-    if is_syntax_error(arr.clone()) || arr[arr.len() - 1] != vec!["beq", "zero", "zero", "0"] {
-        print!("Syntax error: Virtual Hault Not found");
+    if is_syntax_error(arr.clone(), hash_map_labels.clone()) {
+        if arr[arr.len() - 1] != vec!["beq", "zero", "zero", "0"] {
+            print!("Syntax error: Virtual Hault Not found");
+        }
         exit(0);
     }
 

@@ -1,5 +1,6 @@
 use crate::instructions;
 
+use std::collections::{hash_map, HashMap};
 use std::fs::File;
 use std::io::{self, Write};
 
@@ -57,7 +58,7 @@ pub fn twos_complement(input: &str) -> String {
     s.chars().rev().collect()
 }
 
-pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
+pub fn is_syntax_error(lines: Vec<Vec<&str>>, hash_map_label: HashMap<&str, i32>) -> bool {
     let instructions: Vec<Vec<&str>> = vec![
         vec![
             "add", "sub", "sll", "slt", "sltu", "xor", "srl", "or", "and",
@@ -81,20 +82,29 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
     let mut syntax_errors = Vec::new();
 
     for (line_no, line) in lines.iter().enumerate() {
+        if line == &vec!["beq", "zero", "zero", "0"] && line_no < (&lines).len() - 1 {
+            syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+        }
+
         let instruction = line[0];
         if instructions[0].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
             && registers.contains(&line[3])
+            && line.len() == 4
         {
             print!("");
         } else if instructions[1].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
             && check_range(&line[3], 11)
+            && line.len() == 4
         {
             print!("");
-        } else if instructions[5].contains(&instruction) && registers.contains(&line[1]) {
+        } else if instructions[5].contains(&instruction)
+            && registers.contains(&line[1])
+            && line.len() == 3
+        {
             let imm_and_source_reg: Vec<&str> = line[2].split("(").collect();
             let source_reg: &str = imm_and_source_reg[1];
             let source_reg: &str = &source_reg.replace(")", "");
@@ -107,14 +117,35 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>) -> bool {
         } else if instructions[2].contains(&instruction)
             && registers.contains(&line[1])
             && registers.contains(&line[2])
+            && line.len() == 4
         {
-            print!("");
+            let mut flag: bool = false;
+            match line[3].parse::<i32>() {
+                Ok(_) => {
+                    flag = true;
+                }
+                Err(_) => {
+                    flag = false;
+                }
+            }
+            if flag == false && hash_map_label.contains_key(line[3]) {
+                print!("");
+            }
+            if flag == true {
+                print!("");
+            } else {
+                syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
+            }
         } else if instructions[3].contains(&instruction)
             && registers.contains(&line[1])
             && check_range(&line[2], 31)
+            && line.len() == 3
         {
             print!("");
-        } else if instructions[4].contains(&instruction) && registers.contains(&line[1]) {
+        } else if instructions[4].contains(&instruction)
+            && registers.contains(&line[1])
+            && line.len() == 3
+        {
             print!("");
         } else {
             syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));

@@ -1,21 +1,10 @@
-lui t0,100
-addi t1,t0,50
-beq t0,zero,loop
-addi t2,t1,30
-bne t2,zero,end
-lw t3,0(t0)
-bge a3,t1,loop
-blt t3,t2,loop
-sw t3,-10(t2)
-bltu t3,t0,loop
-jalr t4,t3,0
-end: jal ra,label
-loop: add t5,t1,t2
-sltiu t6,gp,100
-xor a7,t2,t3
-or a3,t4,t5
-bltu a7,a6,49
-bgeu t5,t3,-16
-slt s6,s8,a7
-bne t2,t1,end
-label: beq zero,zero,0
+main: sub t1,s0,a0
+add a1,t2,t3
+slt s1,a2,s2
+sltu s3,a3,s4
+xor s5,a4,s6
+srl s7,a5,s8
+or s9,a6,s10
+and s11,a7,s0
+beq gp,zero,loop1
+beq zero,zero,0
