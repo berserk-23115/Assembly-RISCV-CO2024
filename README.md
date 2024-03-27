@@ -20,7 +20,19 @@ Immediate passed is out of bounds
 
 [Documentation](https://linktodocumentation)
 
+## Project Usage : Linux
 
+Select the folder in which you want to replicate this repository. 
+```
+$ git clone https://github.com/berserk-23115/Assembly-RISCV-CO2024/
+```
+```
+$ cd Assembly-RISCV-CO2024
+```
+Change the permission of the script file ```Command.sh``` to make it executable
+```
+$ sudo chmod u+x Command.sh
+```
 ## Prerequisites and System Requirements
 
 Required System Requirements :\
