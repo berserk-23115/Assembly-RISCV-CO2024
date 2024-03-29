@@ -33,6 +33,17 @@ Change the permission of the script file ```Command.sh``` to make it executable
 ```
 $ sudo chmod u+x Command.sh
 ```
+
+Usage of ```Command.sh``` Script
+```
+$ ./command.sh
+```
+<span style = "color:red"> <em>WARNING :: EXECUTE THESE STEPS IN THE SAME ORDER !! </em></span>
+1. This script originally checks for ```TEST```directory containing ```INPUT```,```OUTPUT```,```SIMULATE``` subdirectories. If not found, it would create them in the working directory in which this command is placed.
+2. Place all the input text files in the ```INPUT``` Subdirectory.
+3. Run the ```Command.sh``` file.
+4. The ```OUTPUT``` and ```SIMULATE``` subdirectory should have the files naming as ```"$file_name_out.txt"``` and ```"$file_name_sim.txt"``` respectively.
+
 ## Prerequisites and System Requirements
 
 Required System Requirements :\
