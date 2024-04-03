@@ -12,7 +12,7 @@ fi
 #SCRIPT TO GENERATE OUT AND SIM FILES OF INPUT FILES IN INPUT DIRECTORY
 cd "$CURR_DIREC/$TEST_DIREC/INPUT"
 
-for file in * ; do
+for file in $(command ls); do
   RAWFILENAME=$(basename "$file" .txt)
   cd "$CURR_DIREC/$TEST_DIREC/OUTPUT" && touch "${RAWFILENAME}_out.txt"
   cd "$CURR_DIREC/$TEST_DIREC/SIMULATE" && touch "${RAWFILENAME}_sim.txt"
