@@ -130,7 +130,7 @@ pub fn btype(
     let mut immediate_bin: String;
     if flag == true {
         let imm: i32 = my_array[3].parse().unwrap();
-
+ 
         if imm < 0 {
             immediate_bin = format13(imm.abs());
             immediate_bin = twos_complement(&immediate_bin);
