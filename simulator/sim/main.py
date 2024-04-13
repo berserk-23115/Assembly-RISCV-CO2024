@@ -52,7 +52,7 @@ hash_map = {
     "sw": ["0100011", "010"]
 
 }
-pc = [0]
+pc = 0
 mem = {}
 
 
@@ -133,32 +133,30 @@ def matching_rtype(inst, rf, r1, r2):
             print(registers[rf])
 
 
-def matching_itype(inst, rf, r1, imm):
+def matching_itype(inst, rf, r1, imm, pc):
     match inst:
         case "lw":
             registers[rf] = registers[r1]+convertion(imm)
-            pc[0] += 4
+            pc += 4
             print(registers[rf])
         case "addi":
             registers[rf] = registers[r1]+convertion(imm)
-            pc[0] += 4
+            pc += 4
             print(registers[rf])
         case "sltiu":
             if registers[r1] < convertion(imm):
                 registers[rf] = 1
                 print(registers[rf])
-            pc[0] += 4
+            pc += 4
         case "jalr":
             registers[rf] = pc[0]+4
-            pc[0] = registers[rs1]+convertion(imm)
-
+            pc = registers[rs1]+convertion(imm)
+    return pc
 
 def matching_stype(inst, rf, r1, imm):
     match inst:
         case "sw":
             mem[hex(registers[r1] + convertion(imm))] = registers[rf]
-    for keys, values in mem.items():
-        print(keys, values)
 
 def btype_s(my_array,registers,pc):
     imm=my_array[0:1]+my_array[26:27]+my_array[2:8]+my_array[21:25]+'0'
@@ -212,6 +210,7 @@ def print_reg():
 
 
 if __name__ == "__main__":
+    # FIXME: file path
     file_path = os.path.abspath(
         "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt")
     print(file_path)
@@ -219,9 +218,12 @@ if __name__ == "__main__":
     with open(file_path, "r") as f:
         data = f.readlines()
 
-    print(data)
+    # print(data)
 
-    for line in data:
+    while(True):
+        # TODO: break loop logic
+        
+        line = data[pc/4]
         opcode = line[-7:]
         print(opcode)
 
@@ -235,6 +237,7 @@ if __name__ == "__main__":
             opcode = line[25:32]
 
             matching_rtype(hash_map[opcode][0], rd, rs1, rs2)
+            pc += 4
 
         elif opcode == "0000011":
             print("I-type")
@@ -244,8 +247,8 @@ if __name__ == "__main__":
             rd = line[20:25]
             opcode = line[25:32]
 
-            matching_itype(hash_map[opcode][0], rd, rs1, imm)
-
+            pc = matching_itype(hash_map[opcode][0], rd, rs1, imm, pc)
+                    
         elif opcode == "0100011":
             print("S-type")
             imm1 = line[0:7]
@@ -256,17 +259,20 @@ if __name__ == "__main__":
             imm = imm2+imm1
             
             matching_stype(hash_map[opcode][0], rd, rs1, imm)
+            pc += 4
             
         elif opcode == "1100011":
             print("B-type")
-            pc[0] = btype_s(line, registers, pc[0])
+            pc = btype_s(line, registers, pc)
             
         elif opcode == "0110111":
             print("U-type")
+            # TODO: U-type logic
         elif opcode == "1101111":
             print("J-type")
+            # TODO: J-type logic
 
-    print_reg()
-
-
-    print(registers)
+        # FIXME: write register values in output.txt
+        print_reg()
+    
+    # TODO: write memory in output.txt
