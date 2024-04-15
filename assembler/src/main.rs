@@ -142,35 +142,46 @@ fn main() {
     file.read_to_string(&mut contents).expect("oops cant ...");
 
     let mut arr: Vec<Vec<&str>> = vec![];
-
+    let mut hash_map_labels: HashMap<&str, i32> = HashMap::new();
+    let mut code_line: i32 = 0;
+    let label: &str = "";
     for line in contents.lines() {
         let mut my_array: Vec<&str> = Vec::new();
-        let mut label: Option<&str> = None;
+        // let label: Option<&str> = None;
+        code_line = code_line + 1;
         for word in line.split_whitespace() {
             let parts: Vec<&str> = word.split(',').collect();
             for part in parts {
                 if part.ends_with(':') {
-                    label = Some(part);
+                    // label = part;
+                    // let label: &str = &label.replace(":", "");
+                    hash_map_labels.insert(&part[..(part.len() - 1)], code_line);
                 } else {
                     my_array.push(part);
                 }
             }
         }
-        if let Some(l) = label {
-            my_array.push(l);
-        }
+
+        // if let Some(l) = label {
+        //     my_array.push(l);
+        // }
         arr.push(my_array);
     }
 
-    // print!("{:?}", arr);
+    // print!("{:?}", hash_map_labels);
+    // print!("{:?}", arr[arr.len() - 1]);
 
-    // if is_syntax_error(arr.clone()) {
-    //    exit(0);
-    // }
+    if is_syntax_error(arr.clone(), hash_map_labels.clone()) {
+        if arr[arr.len() - 1] != vec!["beq", "zero", "zero", "0"] {
+            print!("Syntax error: Virtual Hault Not found");
+        }
+        exit(0);
+    }
 
     let mut machine_code: Vec<String> = vec![];
-
+    let mut current_line: i32 = 0;
     for line in arr {
+        current_line += 1;
         if instructions[0].contains(&line[0]) {
             machine_code.push(rtype(&hash_map_R, &hash_map2, &line));
         } else if instructions[1].contains(&line[0]) {
@@ -178,11 +189,23 @@ fn main() {
         } else if instructions[2].contains(&line[0]) {
             machine_code.push(stype(&hash_map2, &line))
         } else if instructions[3].contains(&line[0]) {
-            machine_code.push(btype(&hash_map_B, &hash_map2, &line))
+            machine_code.push(btype(
+                &hash_map_B,
+                &hash_map2,
+                &line,
+                &hash_map_labels,
+                current_line,
+            ))
         } else if instructions[4].contains(&line[0]) {
             machine_code.push(utype(&hash_map_U, &hash_map2, &line));
         } else if instructions[5].contains(&line[0]) {
-            machine_code.push(jtype(&hash_map_J, &hash_map2, &line));
+            machine_code.push(jtype(
+                &hash_map_J,
+                &hash_map2,
+                &line,
+                &hash_map_labels,
+                current_line,
+            ));
         }
     }
 
