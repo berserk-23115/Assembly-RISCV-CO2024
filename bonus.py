@@ -69,7 +69,7 @@ def matching(inst, rf, r1, r2):
             for i in registers:
                 registers[i]=0
         case "halt":
-            pass
+            pass#need to exit the code(halt)
         case "rvrs":
             print(registers[rf])
             x = int_to_32(registers[rf])
