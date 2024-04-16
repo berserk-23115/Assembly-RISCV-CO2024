@@ -129,13 +129,14 @@ def convertion2(y):
 
 
 def matching_rtype(inst, rf, r1, r2):
+    global registers
     match inst:
         case "add":
             registers[rf] = registers[r1] + registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
         case "sub":
             registers[rf] = registers[r1] - registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
         case "slt":
             if registers[r1] < registers[r2]:
                 registers[rf] = 1
@@ -144,31 +145,35 @@ def matching_rtype(inst, rf, r1, r2):
                 registers[rf] = 1
         case "xor":
             registers[rf] = registers[r1] ^ registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
         case "sll":
             registers[rf] = registers[r1] * pow(2, registers[r2])
-            print(registers[rf])
-        case "slr":
+            # print(registers[rf])
+        case "srl":
             registers[rf] = registers[r1] / pow(2, registers[r2])
-            print(registers[rf])
+            # print(registers[rf])
         case "or":
             registers[rf] = registers[r1] | registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
         case "and":
             registers[rf] = registers[r1] & registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
 
 
 def matching_itype(inst, rf, r1, imm, pc):
     match inst:
         case "lw":
-            registers[rf] = mem[registers[r1] + convertion(imm)]
+            try:
+                registers[rf] = mem[registers[r1] + convertion(imm)]
+            except KeyError:
+                mem[registers[r1] + convertion(imm)] = 0
+                registers[rf] = mem[registers[r1] + convertion(imm)]
             pc += 4
-            print(registers[rf])
+            # print(registers[rf])
         case "addi":
             registers[rf] = registers[r1] + convertion(imm)
             pc += 4
-            print(registers[rf])
+            # print(registers[rf])
         case "sltiu":
             if registers[r1] < convertion(imm):
                 registers[rf] = 1
@@ -177,7 +182,11 @@ def matching_itype(inst, rf, r1, imm, pc):
         case "jalr":
             registers[rf] = pc + 4
             pc = registers[r1] + convertion(imm)
-    print(pc)
+            pc = int_to_32(pc)
+            temp = pc[:-1] + "0"
+            pc = binaryToDecimal(int(temp))
+            
+    # print(pc)
     return int(pc)
 
 
@@ -273,7 +282,7 @@ if __name__ == "__main__":
     file_path = os.path.abspath(
         "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt"
     )
-    print(file_path)
+    # print(file_path)
 
     with open(file_path, "r") as f:
         data = f.readlines()
@@ -287,9 +296,9 @@ if __name__ == "__main__":
         # TODO: break loop logic
 
         line = data[pc // 4]
-        print(line)
+        # print(line)
         opcode = line[25:32]
-        print(opcode)
+        # print(opcode)
 
         if opcode == "0110011":
             print("R-type")
@@ -316,7 +325,7 @@ if __name__ == "__main__":
             for keys, values in hash_map.items():
                 if values[0] == opcode and values[1] == funct3:
                     # print(keys)
-                    matching_itype(keys,rd,rs1,imm)
+                    pc = matching_itype(keys,rd,rs1,imm, pc)
 
         elif opcode == "0100011":
             print("S-type")
@@ -330,8 +339,8 @@ if __name__ == "__main__":
             for keys, values in hash_map.items():
                 if values[0] == opcode and values[1] == funct3:
                     # print(keys)
-                    pc = matching_stype(keys,rd,rs1,imm)
-            # pc += 4
+                    matching_stype(keys,rd,rs1,imm)
+            pc += 4
 
         elif opcode == "1100011":
             print("B-type")
@@ -360,6 +369,10 @@ if __name__ == "__main__":
         elif opcode == "1101111":
             print("J-type")
             # TODO: J-type logic
+            reg = line[20:25]
+            immediate = line[0]+line[1:9]+line[9:10]+line[10:20]+"0"
+            registers[reg] = pc+4
+            pc = binaryToDecimal(immediate)
         # elif opcode == "0000001":
         #     print("BONUS")
         #     funct7 = line[0:7]
@@ -388,7 +401,7 @@ if __name__ == "__main__":
         else:
             pc += 4
         if (pc // 4 >= len(data)):
-            break
+            halt = True
 
         # write_reg()
         print(registers)
