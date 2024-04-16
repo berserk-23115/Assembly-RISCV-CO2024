@@ -92,8 +92,8 @@ rd = binary_number[20:25]
 optcode = binary_number[25:32]
 
 
-for keys, values in hash_map.items():
-    if values[0] == optcode and values[1] == funct3:
-        print(keys)
-        matching(keys,rd,rs1,imm)
+            for keys, values in hash_map.items():
+                if values[0] == optcode and values[1] == funct3:
+                    print(keys)
+                    matching(keys,rd,rs1,imm)
 

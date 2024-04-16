@@ -1,40 +1,7 @@
 import os
 import sys
 
-registers = {
-    "00000": 0,
-    "00001": 0,
-    "00010": 0,
-    "00011": 0,
-    "00100": 0,
-    "00101": 0,
-    "00110": 0,
-    "00111": 0,
-    "01000": 0,
-    "01001": 0,
-    "01010": 0,
-    "01011": 0,
-    "01100": 0,
-    "01101": 0,
-    "01110": 0,
-    "01111": 0,
-    "10000": 0,
-    "10001": 0,
-    "10010": 0,
-    "10011": 0,
-    "10100": 0,
-    "10101": 0,
-    "10110": 0,
-    "10111": 0,
-    "11000": 0,
-    "11001": 0,
-    "11010": 0,
-    "11011": 0,
-    "11100": 0,
-    "11101": 0,
-    "11110": 0,
-    "11111": 0,
-}
+registers = {format(i, '05b'): 0 for i in range(32)}
 
 hash_map = {
     "add": ["0110011", "000", "0000000"],
@@ -208,9 +175,10 @@ def matching_itype(inst, rf, r1, imm, pc):
                 print(registers[rf])
             pc += 4
         case "jalr":
-            registers[rf] = pc[0] + 4
-            pc = registers[rs1] + convertion(imm)
-    return pc
+            registers[rf] = pc + 4
+            pc = registers[r1] + convertion(imm)
+    print(pc)
+    return int(pc)
 
 
 def matching_stype(inst, rf, r1, imm):
@@ -309,14 +277,18 @@ if __name__ == "__main__":
 
     with open(file_path, "r") as f:
         data = f.readlines()
+        
 
     # print(data)
 
-    while True:
+    halt = False
+    while not halt:
+        print(pc)
         # TODO: break loop logic
 
         line = data[pc // 4]
-        opcode = line[-7:]
+        print(line)
+        opcode = line[25:32]
         print(opcode)
 
         if opcode == "0110011":
@@ -327,8 +299,10 @@ if __name__ == "__main__":
             funct3 = line[17:20]
             rd = line[20:25]
             opcode = line[25:32]
-
-            matching_rtype(hash_map[opcode][0], rd, rs1, rs2)
+            for keys, values in hash_map.items():
+                if values[0] == opcode and values[1] == funct3 and values[2] == funct7:
+                    # print(keys)
+                    matching_rtype(keys,rd,rs1,rs2)
             pc += 4
 
         elif opcode == "0000011":
@@ -339,7 +313,10 @@ if __name__ == "__main__":
             rd = line[20:25]
             opcode = line[25:32]
 
-            pc = matching_itype(hash_map[opcode][0], rd, rs1, imm, pc)
+            for keys, values in hash_map.items():
+                if values[0] == opcode and values[1] == funct3:
+                    # print(keys)
+                    matching_itype(keys,rd,rs1,imm)
 
         elif opcode == "0100011":
             print("S-type")
@@ -350,8 +327,11 @@ if __name__ == "__main__":
             imm2 = line[20:25]
             imm = imm2 + imm1
 
-            matching_stype(hash_map[opcode][0], rd, rs1, imm)
-            pc += 4
+            for keys, values in hash_map.items():
+                if values[0] == opcode and values[1] == funct3:
+                    # print(keys)
+                    pc = matching_stype(keys,rd,rs1,imm)
+            # pc += 4
 
         elif opcode == "1100011":
             print("B-type")
@@ -360,36 +340,54 @@ if __name__ == "__main__":
         elif opcode == "0110111":
             print("U-type")
             # TODO: U-type logic
+            opcode = input[25:31]
+            if opcode == "0110111":
+                immediate_bin = input[0:20]
+                register_bin = input[20:25]
+                final_bin = immediate_bin+"000000000000"
+                dict[register_bin]=final_bin
+            elif opcode == "0010111":
+                programcount = binaryToDecimal(pc)
+                immediate_bin = input[0:20]
+                register_bin = input[20:25]
+                final_bin = immediate_bin+"000000000000"
+                final_num = binaryToDecimal(final_bin)
+                final_num+=programcount
+                if(final_num>=0):
+                    dict[register_bin]= final_num
+                else:
+                    dict[register_bin]= final_num
         elif opcode == "1101111":
             print("J-type")
             # TODO: J-type logic
-        elif opcode == "0000001":
-            print("BONUS")
-            funct7 = line[0:7]
-            rs2 = line[7:12]
-            rs1 = line[12:17]
-            funct3 = line[17:20]
-            rd = line[20:25]
-            optcode = line[25:32]
+        # elif opcode == "0000001":
+        #     print("BONUS")
+        #     funct7 = line[0:7]
+        #     rs2 = line[7:12]
+        #     rs1 = line[12:17]
+        #     funct3 = line[17:20]
+        #     rd = line[20:25]
+        #     optcode = line[25:32]
             
-            match inst:
-                case "mul":
-                    registers[rd] = registers[rs1] * registers[rs2]
-                    print(registers[rd])
-                case "rst":
-                    for i in registers:
-                        registers[i] = 0
-                case "halt":
-                    break
-                case "rvrs":
-                    print(registers[rd])
-                    x = int_to_32(registers[rd])
-                    print(x)
-                    z = convertion2(x[::-1])
-                    print(z)
-                    registers[rs1] = z
-
-        if (pc/4 >= len(data)):
+        #     match inst:
+        #         case "mul":
+        #             registers[rd] = registers[rs1] * registers[rs2]
+        #             print(registers[rd])
+        #         case "rst":
+        #             for i in registers:
+        #                 registers[i] = 0
+        #         case "halt":
+        #             break
+        #         case "rvrs":
+        #             print(registers[rd])
+        #             x = int_to_32(registers[rd])
+        #             print(x)
+        #             z = convertion2(x[::-1])
+        #             print(z)
+        #             registers[rs1] = z
+        else:
+            pc += 4
+        if (pc // 4 >= len(data)):
             break
 
         # write_reg()
