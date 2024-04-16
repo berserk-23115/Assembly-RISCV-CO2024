@@ -17,6 +17,25 @@ Immediate passed is out of bounds
 #### 
 
 ## Documentation
+Proposed Bonus Instruction and its opcodes and Semantics
+|Instruction | Proposed OpCode| func code|
+|------------|----------------|----------|
+|    mult    |     0000001     |    000   |
+|    rst    |     0000001     |    001   |
+|    halt    |     0000001     |    010  |
+|    rvrs    |     0000001     |    011   |
+### Semantics
+```
+MULT: -
+<filler bits (7)> <register source2> <register source1> <function code> <destination register> <opcode>
+RST:-
+<filler bits> <function code> <filler bits> <opcode>
+HALT:-
+<filler bits> <function code> <filler bits> <opcode>
+RVRS:-
+<filler bits> <register source 1> <function code> <destination register> <opcode>
+```
+
 
 [Documentation](https://drive.google.com/file/d/1YbpAAX5xA26BjEXvGWXZL8_1BQg3h-29/view?usp=sharing)
 
@@ -56,7 +75,7 @@ Installation of **RUST** programming Language \
 Detailed Instructions :\
 https://www.rust-lang.org/tools/install
 ## MacOS / Linux
-```
+```bash
 curl https://sh.rustup.rs -sSf | sh
 ```
 ## Windows
