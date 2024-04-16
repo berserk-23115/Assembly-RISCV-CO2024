@@ -57,7 +57,7 @@ def int_to_32(x):
         y = ''.join(y)
         return y
         print(y)
-def convertion(y):
+def convertion2(y):
         return  int(y,2)
 
 def matching(inst, rf, r1, r2):
@@ -74,7 +74,7 @@ def matching(inst, rf, r1, r2):
             print(registers[rf])
             x = int_to_32(registers[rf])
             print(x)
-            z = convertion(x[::-1])
+            z = convertion2(x[::-1])
             print(z)
             registers[r1] = z
 

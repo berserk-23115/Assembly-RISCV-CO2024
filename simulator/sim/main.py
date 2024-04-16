@@ -53,7 +53,40 @@ hash_map = {
     "sw": ["0100011", "010"],
 }
 pc = 0
-mem = {}
+mem = {
+    "0x00010000": 0,
+    "0x00010004": 0,
+    "0x00010008": 0,
+    "0x0001000c": 0,
+    "0x00010010": 0,
+    "0x00010014": 0,
+    "0x00010018": 0,
+    "0x0001001c": 0,
+    "0x00010020": 0,
+    "0x00010024": 0,
+    "0x00010028": 0,
+    "0x0001002c": 0,
+    "0x00010030": 0,
+    "0x00010034": 0,
+    "0x00010038": 0,
+    "0x0001003c": 0,
+    "0x00010040": 0,
+    "0x00010044": 0,
+    "0x00010048": 0,
+    "0x0001004c": 0,
+    "0x00010050": 0,
+    "0x00010054": 0,
+    "0x00010058": 0,
+    "0x0001005c": 0,
+    "0x00010060": 0,
+    "0x00010064": 0,
+    "0x00010068": 0,
+    "0x0001006c": 0,
+    "0x00010070": 0,
+    "0x00010074": 0,
+    "0x00010078": 0,
+    "0x0001007c": 0,
+}
 
 
 def convertion(y):
@@ -105,6 +138,29 @@ def binaryToDecimal(binary):
     return decimal
 
 
+def int_to_32(x):
+    if x >= 0:
+        y = format(x, '032b')
+        return y
+        print(y)
+    elif x < 0:
+        y = format(x + 1, '032b')
+        # print(y)
+        y = list(y)
+        for i in range(32):
+            if y[i] == "0":
+                y[i] = "1"
+            else:
+                y[i] = "0"
+        y[0] = "1"
+        y = ''.join(y)
+        return y
+
+
+def convertion2(y):
+    return int(y, 2)
+
+
 def matching_rtype(inst, rf, r1, r2):
     match inst:
         case "add":
@@ -139,7 +195,7 @@ def matching_rtype(inst, rf, r1, r2):
 def matching_itype(inst, rf, r1, imm, pc):
     match inst:
         case "lw":
-            registers[rf] = registers[r1] + convertion(imm)
+            registers[rf] = mem[registers[r1] + convertion(imm)]
             pc += 4
             print(registers[rf])
         case "addi":
@@ -164,7 +220,8 @@ def matching_stype(inst, rf, r1, imm):
 
 
 def btype_s(my_array, registers, pc):
-    imm = my_array[0:1] + my_array[26:27] + my_array[2:8] + my_array[21:25] + "0"
+    imm = my_array[0:1] + my_array[26:27] + \
+        my_array[2:8] + my_array[21:25] + "0"
     rs2 = my_array[8:13]
     rs1 = my_array[13:18]
     func3 = my_array[18:21]
@@ -208,10 +265,39 @@ def btype_s(my_array, registers, pc):
     return pc
 
 
-def print_reg():
+def matching_bonus(inst, rf, r1, r2):
+    match inst:
+        case "mul":
+            registers[rf] = registers[r1] * registers[r2]
+            print(registers[rf])
+        case "rst":
+            for i in registers:
+                registers[i] = 0
+        case "halt":
+            pass
+        case "rvrs":
+            print(registers[rf])
+            x = int_to_32(registers[rf])
+            print(x)
+            z = convertion2(x[::-1])
+            print(z)
+            registers[r1] = z
+
+
+def write_reg():
+    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
     for i in registers:
-        print(convertion(registers[i]), end=" ")
+        f.write(str(registers[i]))
+    f.write("\n")
+    f.close()
+
+
+def write_mem():
+    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
+    for i in mem:
+        f.write(f"{i}:{mem[i]}")
     print()
+    f.close()
 
 
 if __name__ == "__main__":
@@ -229,7 +315,7 @@ if __name__ == "__main__":
     while True:
         # TODO: break loop logic
 
-        line = data[pc / 4]
+        line = data[pc // 4]
         opcode = line[-7:]
         print(opcode)
 
@@ -277,13 +363,36 @@ if __name__ == "__main__":
         elif opcode == "1101111":
             print("J-type")
             # TODO: J-type logic
+        elif opcode == "0000001":
+            print("BONUS")
+            funct7 = line[0:7]
+            rs2 = line[7:12]
+            rs1 = line[12:17]
+            funct3 = line[17:20]
+            rd = line[20:25]
+            optcode = line[25:32]
+            
+            match inst:
+                case "mul":
+                    registers[rd] = registers[rs1] * registers[rs2]
+                    print(registers[rd])
+                case "rst":
+                    for i in registers:
+                        registers[i] = 0
+                case "halt":
+                    break
+                case "rvrs":
+                    print(registers[rd])
+                    x = int_to_32(registers[rd])
+                    print(x)
+                    z = convertion2(x[::-1])
+                    print(z)
+                    registers[rs1] = z
 
-        if(PC/4 >= len(data)):
+        if (pc/4 >= len(data)):
             break
-        
-        # FIXME: write register values in output.txt
-        
-        print_reg()
 
-    # TODO: write memory in output.txt
+        # write_reg()
+        print(registers)
 
+    write_mem()
