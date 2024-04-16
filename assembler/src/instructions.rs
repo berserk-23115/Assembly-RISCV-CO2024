@@ -130,7 +130,7 @@ pub fn btype(
     let mut immediate_bin: String;
     if flag == true {
         let imm: i32 = my_array[3].parse().unwrap();
- 
+
         if imm < 0 {
             immediate_bin = format13(imm.abs());
             immediate_bin = twos_complement(&immediate_bin);
@@ -242,10 +242,21 @@ pub fn jtype(
     s.push_str(&immediate_bin[1..9]);
     s.push_str(register_bin);
     s.push_str(instruction_bin);
-    // s.push_str(&immediate_bin[8..19]);
-    // s.push_str(&immediate_bin[0..9]);
-    // s.push_str(register_bin);
-    // s.push_str(instruction_bin);
 
     s
+}
+
+pub fn bonus(
+    &hash_map_bonus,
+    &hash_map2,
+    &my_array
+    ) -> String {
+
+    let mut s: String = String::new();
+
+    let instruction: &str = my_array[0];
+    let instruction_bin: &str = hash_map[instruction];
+    let register_bin: &str = hash_map2[my_array[1]];
+
+
 }

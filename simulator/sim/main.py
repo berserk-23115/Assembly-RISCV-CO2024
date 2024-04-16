@@ -1,4 +1,5 @@
 import os
+import sys
 
 registers = {
     "00000": 0,
@@ -32,7 +33,7 @@ registers = {
     "11100": 0,
     "11101": 0,
     "11110": 0,
-    "11111": 0
+    "11111": 0,
 }
 
 hash_map = {
@@ -49,66 +50,68 @@ hash_map = {
     "addi": ["0010011", "000"],
     "sltiu": ["0010011", "011"],
     "jalr": ["1100111", "000"],
-    "sw": ["0100011", "010"]
-
+    "sw": ["0100011", "010"],
 }
 pc = 0
 mem = {}
 
 
 def convertion(y):
-    if (y[0] == "0"):
+    if y[0] == "0":
         con = int(y, 2)
         return con
-    elif (y[0] == "1"):
+    elif y[0] == "1":
         y = list(y)
         for i in range(12):
-            if (y[i] == "0"):
+            if y[i] == "0":
                 y[i] = "1"
             else:
                 y[i] = "0"
-        y = ''.join(y)
+        y = "".join(y)
         con = int(y, 2)
-        con = con+1
-        fin = con - (con*2)
+        con = con + 1
+        fin = con - (con * 2)
         return fin
 
-def signed_binaryToDecimal(binary,sign):
- 
+
+def signed_binaryToDecimal(binary, sign):
+
     decimal, i = 0, 0
-    if(sign==0):
-        while(binary != 0):
+    if sign == 0:
+        while binary != 0:
             dec = binary % 10
             decimal = decimal + dec * pow(2, i)
-            binary = binary//10
+            binary = binary // 10
             i += 1
-        return(decimal)
+        return decimal
     else:
-        binary=binary%1000000000000
-        while(binary != 0):
+        binary = binary % 1000000000000
+        while binary != 0:
             dec = binary % 10
             decimal = decimal + dec * pow(2, i)
-            binary = binary//10
+            binary = binary // 10
             i += 1
-        return(decimal*(-1))
-    
+        return decimal * (-1)
+
+
 def binaryToDecimal(binary):
- 
+
     decimal, i = 0, 0
-    while(binary != 0):
+    while binary != 0:
         dec = binary % 10
         decimal = decimal + dec * pow(2, i)
-        binary = binary//10
+        binary = binary // 10
         i += 1
-    return(decimal)
+    return decimal
+
 
 def matching_rtype(inst, rf, r1, r2):
     match inst:
         case "add":
-            registers[rf] = registers[r1]+registers[r2]
+            registers[rf] = registers[r1] + registers[r2]
             print(registers[rf])
         case "sub":
-            registers[rf] = registers[r1]-registers[r2]
+            registers[rf] = registers[r1] - registers[r2]
             print(registers[rf])
         case "slt":
             if registers[r1] < registers[r2]:
@@ -120,10 +123,10 @@ def matching_rtype(inst, rf, r1, r2):
             registers[rf] = registers[r1] ^ registers[r2]
             print(registers[rf])
         case "sll":
-            registers[rf] = registers[r1]*pow(2, registers[r2])
+            registers[rf] = registers[r1] * pow(2, registers[r2])
             print(registers[rf])
         case "slr":
-            registers[rf] = registers[r1]/pow(2, registers[r2])
+            registers[rf] = registers[r1] / pow(2, registers[r2])
             print(registers[rf])
         case "or":
             registers[rf] = registers[r1] | registers[r2]
@@ -136,11 +139,11 @@ def matching_rtype(inst, rf, r1, r2):
 def matching_itype(inst, rf, r1, imm, pc):
     match inst:
         case "lw":
-            registers[rf] = registers[r1]+convertion(imm)
+            registers[rf] = registers[r1] + convertion(imm)
             pc += 4
             print(registers[rf])
         case "addi":
-            registers[rf] = registers[r1]+convertion(imm)
+            registers[rf] = registers[r1] + convertion(imm)
             pc += 4
             print(registers[rf])
         case "sltiu":
@@ -149,70 +152,73 @@ def matching_itype(inst, rf, r1, imm, pc):
                 print(registers[rf])
             pc += 4
         case "jalr":
-            registers[rf] = pc[0]+4
-            pc = registers[rs1]+convertion(imm)
+            registers[rf] = pc[0] + 4
+            pc = registers[rs1] + convertion(imm)
     return pc
+
 
 def matching_stype(inst, rf, r1, imm):
     match inst:
         case "sw":
             mem[hex(registers[r1] + convertion(imm))] = registers[rf]
 
-def btype_s(my_array,registers,pc):
-    imm=my_array[0:1]+my_array[26:27]+my_array[2:8]+my_array[21:25]+'0'
-    rs2=my_array[8:13]
-    rs1=my_array[13:18]
-    func3=my_array[18:21]
+
+def btype_s(my_array, registers, pc):
+    imm = my_array[0:1] + my_array[26:27] + my_array[2:8] + my_array[21:25] + "0"
+    rs2 = my_array[8:13]
+    rs1 = my_array[13:18]
+    func3 = my_array[18:21]
     match func3:
-        case '000':
-            if(registers[rs1]==registers[rs2]):
-                imm=binaryToDecimal(int(imm))
-                pc+=imm
+        case "000":
+            if registers[rs1] == registers[rs2]:
+                imm = binaryToDecimal(int(imm))
+                pc += imm
             else:
-                pc+=4
-        case '001':
-            if(registers[rs1]!=registers[rs2]):
-                imm=binaryToDecimal(int(imm))
-                pc+=imm
+                pc += 4
+        case "001":
+            if registers[rs1] != registers[rs2]:
+                imm = binaryToDecimal(int(imm))
+                pc += imm
             else:
-                pc+=4
-        case '100':
-            if(registers[rs1]>=registers[rs2]):
-                imm=binaryToDecimal(int(imm))
-                pc+=imm
+                pc += 4
+        case "100":
+            if registers[rs1] >= registers[rs2]:
+                imm = binaryToDecimal(int(imm))
+                pc += imm
             else:
-                pc+=4
-        case '101':
-            if(abs(registers[rs1])>=abs(registers[rs2])):
-                imm=signed_binaryToDecimal(int(imm),int(imm[0]))
-                pc+=imm
+                pc += 4
+        case "101":
+            if abs(registers[rs1]) >= abs(registers[rs2]):
+                imm = signed_binaryToDecimal(int(imm), int(imm[0]))
+                pc += imm
             else:
-                pc+=4
-        case '110':
-            if(registers[rs1]<registers[rs2]):
-                imm=binaryToDecimal(int(imm))
-                pc+=imm
+                pc += 4
+        case "110":
+            if registers[rs1] < registers[rs2]:
+                imm = binaryToDecimal(int(imm))
+                pc += imm
             else:
-                pc+=4
-        case '111':
-            if(abs(registers[rs1])<abs(registers[rs2])):
-                imm=binaryToDecimal(int(imm))
-                pc+=imm
+                pc += 4
+        case "111":
+            if abs(registers[rs1]) < abs(registers[rs2]):
+                imm = binaryToDecimal(int(imm))
+                pc += imm
             else:
-                pc+=4
-    return(pc)
+                pc += 4
+    return pc
 
 
 def print_reg():
     for i in registers:
-        print(registers[i], end=" ")
+        print(convertion(registers[i]), end=" ")
     print()
 
 
 if __name__ == "__main__":
     # FIXME: file path
     file_path = os.path.abspath(
-        "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt")
+        "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt"
+    )
     print(file_path)
 
     with open(file_path, "r") as f:
@@ -220,10 +226,10 @@ if __name__ == "__main__":
 
     # print(data)
 
-    while(True):
+    while True:
         # TODO: break loop logic
-        
-        line = data[pc/4]
+
+        line = data[pc / 4]
         opcode = line[-7:]
         print(opcode)
 
@@ -248,7 +254,7 @@ if __name__ == "__main__":
             opcode = line[25:32]
 
             pc = matching_itype(hash_map[opcode][0], rd, rs1, imm, pc)
-                    
+
         elif opcode == "0100011":
             print("S-type")
             imm1 = line[0:7]
@@ -256,15 +262,15 @@ if __name__ == "__main__":
             rd = line[7:12]
             funct3 = line[17:20]
             imm2 = line[20:25]
-            imm = imm2+imm1
-            
+            imm = imm2 + imm1
+
             matching_stype(hash_map[opcode][0], rd, rs1, imm)
             pc += 4
-            
+
         elif opcode == "1100011":
             print("B-type")
             pc = btype_s(line, registers, pc)
-            
+
         elif opcode == "0110111":
             print("U-type")
             # TODO: U-type logic
@@ -272,7 +278,12 @@ if __name__ == "__main__":
             print("J-type")
             # TODO: J-type logic
 
+        if(PC/4 >= len(data)):
+            break
+        
         # FIXME: write register values in output.txt
+        
         print_reg()
-    
+
     # TODO: write memory in output.txt
+

@@ -65,6 +65,13 @@ fn main() {
 
     let hash_map_J: HashMap<&str, &str> = [("jal", "1101111")].iter().cloned().collect();
 
+    let hash_map_bonus: HashMap<&str, Vec<&str>> = [
+        ("mul", vec!["0000001", "000", "0000000"]),
+        ("rst", vec!["0000001", "001", "0000000"]),
+        ("halt", vec!["0000001", "010", "0000000"]),
+        ("rvrs", vec!["0000001", "011", "0000000"]),
+    ];
+
     let hash_map2: HashMap<&str, &str> = [
         ("x0", "00000"),
         ("x1", "00001"),
@@ -206,6 +213,8 @@ fn main() {
                 &hash_map_labels,
                 current_line,
             ));
+        } else if instructions[6].contains(&line[0]) {
+            machine_code.push(bonus(&hash_map_bonus, &hash_map2, &line))
         }
     }
 
