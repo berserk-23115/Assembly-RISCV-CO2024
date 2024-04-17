@@ -1,10 +1,17 @@
 import os
 import sys
 
+# Get the file name from the command line arguments
+file_name = sys.argv[1]
+output_name = sys.argv[2]
+
+# Open the input and output files
+file = open(file_name, 'r')
+outfile = open(output_name, 'a')
 
 registers = {format(i, '05b'): 0 for i in range(32)}
 registers["00010"] = 256
-print(registers)
+# print(registers)
 
 hash_map = {
     "add": ["0110011", "000", "0000000"],
@@ -141,7 +148,7 @@ def matching_rtype(inst, rf, r1, r2):
     match inst:
         case "add":
             registers[rf] = registers[r1] + registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
         case "sub":
             registers[rf] = registers[r1] - registers[r2]
             # print(registers[rf])
@@ -171,33 +178,33 @@ def matching_rtype(inst, rf, r1, r2):
 def matching_itype(inst, rf, r1, imm, pc, registers=registers, mem=mem):
     match inst:
         case "lw":
-            print("###########################################")
-            print(r1, imm)
-            print(registers[r1], convertion(imm))
-            print((hex(registers[r1] + convertion(imm))))
+            # print("###########################################")
+            # print(r1, imm)
+            # print(registers[r1], convertion(imm))
+            # print((hex(registers[r1] + convertion(imm))))
             try:
-                if(hex(registers[r1] + convertion(imm)) in mem):
-                    print("True")
-                else:
-                    print("False")
+                # if (hex(registers[r1] + convertion(imm)) in mem):
+                #     print("True")
+                # else:
+                #     print("False")
                 registers[rf] = mem[(
                     hex(registers[r1] + convertion(imm)))]
                 # print(hex(registers[r1] + convertion(imm)))
-                print(hex_format(hex(registers[r1] + convertion(imm))))
-                print(registers[rf])
-                print("AAAAANNNNNUUUUUSSSSHHHHHHKKKKKKAAAAA")
+                # print(hex_format(hex(registers[r1] + convertion(imm))))
+                # print(registers[rf])
+                # print("AAAAANNNNNUUUUUSSSSHHHHHHKKKKKKAAAAA")
             except KeyError:
-                if(hex(registers[r1] + convertion(imm)) in mem):
-                    print("True")
-                else:
-                    print("False")
+                # if (hex(registers[r1] + convertion(imm)) in mem):
+                #     print("True")
+                # else:
+                #     print("False")
                 mem[(hex(registers[r1] + convertion(imm)))] = 0
                 registers[rf] = mem[hex(registers[r1] + convertion(imm))]
             pc += 4
             # print(registers[rf])
         case "addi":
             registers[rf] = registers[r1] + convertion(imm)
-            print(convertion(imm), registers[rf])
+            # print(convertion(imm), registers[rf])
             pc += 4
             # print(registers[rf])
         case "sltiu":
@@ -271,36 +278,19 @@ def matching_bonus(inst, rf, r1, r2):
     match inst:
         case "mul":
             registers[rf] = registers[r1] * registers[r2]
-            print(registers[rf])
+            # print(registers[rf])
         case "rst":
             for i in registers:
                 registers[i] = 0
         case "halt":
             pass
         case "rvrs":
-            print(registers[rf])
+            # print(registers[rf])
             x = int_to_32(registers[rf])
-            print(x)
+            # print(x)
             z = convertion2(x[::-1])
-            print(z)
+            # print(z)
             registers[r1] = z
-
-
-def write_reg():
-    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
-    for i in registers:
-        f.write(str(registers[i]))
-    f.write("\n")
-    f.close()
-
-
-def write_mem():
-    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
-    for i in mem:
-        f.write(f"{hex_format(i)}:0b{int_to_32(mem[i])}")
-        f.write("\n")
-    print()
-    f.close()
 
 
 if __name__ == "__main__":
@@ -317,7 +307,7 @@ if __name__ == "__main__":
 
     halt = False
     while not halt:
-        print(pc)
+        # print(pc)
         # TODO: break loop logic
 
         line = data[pc // 4]
@@ -326,7 +316,7 @@ if __name__ == "__main__":
         # print(opcode)
 
         if opcode == "0110011":
-            print("R-type")
+            # print("R-type")
             funct7 = line[0:7]
             rs2 = line[7:12]
             rs1 = line[12:17]
@@ -340,12 +330,12 @@ if __name__ == "__main__":
             pc += 4
 
         elif opcode == "0000011" or opcode == "0010011" or opcode == "1100111":
-            print("I-type")
+            # print("I-type")
             imm = line[0:12]
-            print(line)
-            print("----------------")
-            print(imm)
-            print(convertion(imm))
+            # print(line)
+            # print("----------------")
+            # print(imm)
+            # print(convertion(imm))
             rs1 = line[12:17]
             funct3 = line[17:20]
             rd = line[20:25]
@@ -357,7 +347,7 @@ if __name__ == "__main__":
                     pc = matching_itype(keys, rd, rs1, imm, pc)
 
         elif opcode == "0100011":
-            print("S-type")
+            # print("S-type")
             imm1 = line[0:7]
             rs1 = line[12:17]
             rd = line[7:12]
@@ -368,15 +358,14 @@ if __name__ == "__main__":
                 if values[0] == opcode and values[1] == funct3:
                     # print(keys)
                     matching_stype(keys, rd, rs1, imm)
-            print(pc)
             pc += 4
 
         elif opcode == "1100011":
-            print("B-type")
+            # print("B-type")
             pc = btype_s(line, registers, pc)
 
         elif opcode == "0110111":
-            print("U-type")
+            # print("U-type")
             # TODO: U-type logic
             opcode = input[25:31]
             if opcode == "0110111":
@@ -397,12 +386,12 @@ if __name__ == "__main__":
                     dict[register_bin] = final_num
 
         elif opcode == "1101111":
-            print("J-type")
+            # print("J-type")
             # TODO: J-type logic
             reg = line[20:25]
             immediate = line[0]+line[1:9]+line[9:10]+line[10:20]+"0"
             registers[reg] = pc+4
-            pc = binaryToDecimal(int(immediate))
+            pc = binaryToDecimal(immediate)
 
         # elif opcode == "0000001":
         #     print("BONUS")
@@ -434,18 +423,14 @@ if __name__ == "__main__":
         if (pc // 4 >= len(data)):
             halt = True
 
-        # write_reg()
-        f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
-        f.write("0b")
-        f.write(int_to_32(pc))
-        f.write(" ")
+        outfile.write("0b")
+        outfile.write(int_to_32(pc))
+        outfile.write(" ")
         for i in registers:
-            f.write("0b")
-            f.write(str(int_to_32(registers[i])))
-            f.write(" ")
-        f.write("\n")
-        f.close()
-        # print(registers)
-
-    write_mem()
-    print(int_to_32(56))
+            outfile.write("0b")
+            outfile.write(str(int_to_32(registers[i])))
+            outfile.write(" ")
+    
+    for i in mem:
+        outfile.write(f"{hex_format(i)}:{int_to_32(mem[i])}")
+        outfile.write("\n")
