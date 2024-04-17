@@ -2,6 +2,8 @@ import os
 import sys
 
 registers = {format(i, '05b'): 0 for i in range(32)}
+registers["00010"] = 256
+print(registers)
 
 hash_map = {
     "add": ["0110011", "000", "0000000"],
@@ -55,6 +57,10 @@ mem = {
     "0x0001007c": 0,
 }
 
+
+def hex_format(str):
+    x = str[2:]
+    return "0x"+ (10-len(str))*"0" + x
 
 def convertion(y):
     if y[0] == "0":
@@ -159,24 +165,32 @@ def matching_rtype(inst, rf, r1, r2):
             registers[rf] = registers[r1] & registers[r2]
             # print(registers[rf])
 
-def matching_itype(inst, rf, r1, imm, pc):
+def matching_itype(inst, rf, r1, imm, pc, registers=registers, mem=mem):
     match inst:
         case "lw":
+            print("###########################################")
+            print(r1, imm)
+            print(registers[r1] , convertion(imm))
+            print(hex_format(hex(registers[r1] + convertion(imm))))
             try:
-                registers[rf] = mem[registers[r1] + convertion(imm)]
+                registers[rf] = mem[hex_format(hex(registers[r1] + convertion(imm)))]
+                # print(hex(registers[r1] + convertion(imm)))
+                print(hex_format(hex(registers[r1] + convertion(imm))))
+                print(registers[rf])
+                print("AAAAANNNNNUUUUUSSSSHHHHHHKKKKKKAAAAA")
             except KeyError:
-                mem[registers[r1] + convertion(imm)] = 0
+                mem[hex_format(hex(registers[r1] + convertion(imm)))] = 0
                 registers[rf] = mem[registers[r1] + convertion(imm)]
             pc += 4
             # print(registers[rf])
         case "addi":
             registers[rf] = registers[r1] + convertion(imm)
+            print(convertion(imm), registers[rf])
             pc += 4
             # print(registers[rf])
         case "sltiu":
             if registers[r1] < convertion(imm):
                 registers[rf] = 1
-                print(registers[rf])
             pc += 4
         case "jalr":
             registers[rf] = pc + 4
@@ -267,7 +281,7 @@ def write_reg():
 def write_mem():
     f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
     for i in mem:
-        f.write(f"{i}:{mem[i]}")
+        f.write(f"{i}:{int_to_32(mem[i])}")
         f.write("\n")
     print()
     f.close()
@@ -294,7 +308,7 @@ if __name__ == "__main__":
         line = data[pc // 4]
         # print(line)
         opcode = line[25:32]
-        print(opcode)
+        # print(opcode)
 
         if opcode == "0110011":
             print("R-type")
@@ -313,6 +327,10 @@ if __name__ == "__main__":
         elif opcode == "0000011" or opcode == "0010011" or opcode == "1100111":
             print("I-type")
             imm = line[0:12]
+            print(line)
+            print("----------------")
+            print(imm)
+            print(convertion(imm))
             rs1 = line[12:17]
             funct3 = line[17:20]
             rd = line[20:25]
@@ -361,6 +379,7 @@ if __name__ == "__main__":
                     dict[register_bin]= final_num
                 else:
                     dict[register_bin]= final_num
+                    
         elif opcode == "1101111":
             print("J-type")
             # TODO: J-type logic
@@ -368,6 +387,7 @@ if __name__ == "__main__":
             immediate = line[0]+line[1:9]+line[9:10]+line[10:20]+"0"
             registers[reg] = pc+4
             pc = binaryToDecimal(immediate)
+            
         # elif opcode == "0000001":
         #     print("BONUS")
         #     funct7 = line[0:7]
@@ -399,6 +419,15 @@ if __name__ == "__main__":
             halt = True
 
         # write_reg()
-        print(registers)
+        f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
+        f.write(int_to_32(pc))
+        f.write(" ")
+        for i in registers:
+            f.write("0b")
+            f.write(str(int_to_32(registers[i])))
+            f.write(" ")
+        f.write("\n")
+        f.close()
+        # print(registers)
 
     write_mem()
