@@ -34,15 +34,15 @@ registers = {
 }
 
 hash_map = {
-    "add": ["0110011", "000", "0000000"],
-    "sub": ["0110011", "000", "0100000"],
-    "sll": ["0110011", "001", "0000000"],
-    "slt": ["0110011", "010", "0000000"],
-    "sltu": ["0110011", "011", "0000000"],
-    "xor": ["0110011", "100", "0000000"],
-    "srl": ["0110011", "101", "0000000"],
-    "or": ["0110011", "110", "0000000"],
-    "and": ["0110011", "111", "0000000"]
+    "add": ["0011011", "000", "0000000"],
+    "sub": ["0011011", "000", "0100000"],
+    "sll": ["0011011", "001", "0000000"],
+    "slt": ["0011011", "010", "0000000"],
+    "sltu": ["0011011", "011", "0000000"],
+    "xor": ["0011011", "100", "0000000"],
+    "srl": ["0011011", "101", "0000000"],
+    "or": ["0011011", "110", "0000000"],
+    "and": ["0011011", "111", "0000000"]
 }
 
 def matching(inst,rf,r1,r2):
@@ -90,5 +90,12 @@ optcode = binary_number[25:32]
 for keys, values in hash_map.items():
     if values[0] == optcode and values[1] == funct3 and values[2] == funct7:
         print(keys)
-        matching(keys,rd,rs1,rs2)
+        matching(keys, rd, rs1, rs2)
 
+# print(optcode, funct3, funct7)
+# for i in hash_map:
+#     print(hash_map[i][0], hash_map[i][1], hash_map[i][2])
+#     if hash_map[i][0] == optcode and hash_map[i][1] == funct3 and hash_map[i][2] == funct7:
+#         print(i)
+#         matching(i, rd, rs1, rs2)
+    

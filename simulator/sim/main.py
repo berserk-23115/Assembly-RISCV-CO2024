@@ -133,7 +133,7 @@ def matching_rtype(inst, rf, r1, r2):
     match inst:
         case "add":
             registers[rf] = registers[r1] + registers[r2]
-            # print(registers[rf])
+            print(registers[rf])
         case "sub":
             registers[rf] = registers[r1] - registers[r2]
             # print(registers[rf])
@@ -158,7 +158,6 @@ def matching_rtype(inst, rf, r1, r2):
         case "and":
             registers[rf] = registers[r1] & registers[r2]
             # print(registers[rf])
-
 
 def matching_itype(inst, rf, r1, imm, pc):
     match inst:
@@ -189,12 +188,10 @@ def matching_itype(inst, rf, r1, imm, pc):
     # print(pc)
     return int(pc)
 
-
 def matching_stype(inst, rf, r1, imm):
     match inst:
         case "sw":
             mem[hex(registers[r1] + convertion(imm))] = registers[rf]
-
 
 def btype_s(my_array, registers, pc):
     imm = my_array[0:1] + my_array[26:27] + \
@@ -241,7 +238,6 @@ def btype_s(my_array, registers, pc):
                 pc += 4
     return pc
 
-
 def matching_bonus(inst, rf, r1, r2):
     match inst:
         case "mul":
@@ -268,11 +264,11 @@ def write_reg():
     f.write("\n")
     f.close()
 
-
 def write_mem():
     f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
     for i in mem:
         f.write(f"{i}:{mem[i]}")
+        f.write("\n")
     print()
     f.close()
 
@@ -298,7 +294,7 @@ if __name__ == "__main__":
         line = data[pc // 4]
         # print(line)
         opcode = line[25:32]
-        # print(opcode)
+        print(opcode)
 
         if opcode == "0110011":
             print("R-type")
@@ -310,11 +306,11 @@ if __name__ == "__main__":
             opcode = line[25:32]
             for keys, values in hash_map.items():
                 if values[0] == opcode and values[1] == funct3 and values[2] == funct7:
-                    # print(keys)
+                    # print(values[0], values[1], values[2])
                     matching_rtype(keys,rd,rs1,rs2)
             pc += 4
 
-        elif opcode == "0000011":
+        elif opcode == "0000011" or opcode == "0010011" or opcode == "1100111":
             print("I-type")
             imm = line[0:12]
             rs1 = line[12:17]
@@ -335,7 +331,6 @@ if __name__ == "__main__":
             funct3 = line[17:20]
             imm2 = line[20:25]
             imm = imm2 + imm1
-
             for keys, values in hash_map.items():
                 if values[0] == opcode and values[1] == funct3:
                     # print(keys)
