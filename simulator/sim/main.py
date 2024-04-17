@@ -136,8 +136,7 @@ def convertion2(y):
     return int(y, 2)
 
 
-def matching_rtype(inst, rf, r1, r2):
-    global registers
+def matching_rtype(inst, rf, r1, r2, registers=registers, mem=mem):
     match inst:
         case "add":
             registers[rf] = registers[r1] + registers[r2]
@@ -222,16 +221,22 @@ def matching_stype(inst, rf, r1, imm):
 
 
 def btype_s(my_array, registers, pc):
-    imm = my_array[0:1] + my_array[26:27] + \
-        my_array[2:8] + my_array[21:25] + "0"
+    imm = my_array[0:1] + my_array[26:27] + my_array[2:8] + my_array[21:25] + "0"
     rs2 = my_array[8:13]
     rs1 = my_array[13:18]
     func3 = my_array[18:21]
     match func3:
         case "000":
             if registers[rs1] == registers[rs2]:
+                print(line)
+                print("--------------------")
+                print(imm)
+                print(binaryToDecimal(int(imm)))
+                print("--------------------")
                 imm = binaryToDecimal(int(imm))
+                print(pc)
                 pc += imm
+                print(pc)
             else:
                 pc += 4
         case "001":
@@ -309,6 +314,8 @@ if __name__ == "__main__":
         "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt"
     )
     # print(file_path)
+    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "w")
+    f.close()
 
     with open(file_path, "r") as f:
         data = f.readlines()
