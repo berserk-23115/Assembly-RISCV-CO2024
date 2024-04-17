@@ -162,13 +162,6 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>, hash_map_label: HashMap<&str, i32>
     false
 }
 
-// pub fn check_virtual_halt(lines: Vec<Vec<&str>>){
-// let size =
-// for (line_no, line) in lines.iter().enumerate() {
-// println!("");
-// }
-// }
-
 pub fn write_output(filename: &str, data: &Vec<String>) -> io::Result<()> {
     let mut file = File::create(filename)?;
 

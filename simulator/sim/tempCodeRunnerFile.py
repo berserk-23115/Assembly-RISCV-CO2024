@@ -1,2 +1,0 @@
-
-                registers[i] = 0

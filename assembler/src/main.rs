@@ -154,14 +154,11 @@ fn main() {
     let label: &str = "";
     for line in contents.lines() {
         let mut my_array: Vec<&str> = Vec::new();
-        // let label: Option<&str> = None;
         code_line = code_line + 1;
         for word in line.split_whitespace() {
             let parts: Vec<&str> = word.split(',').collect();
             for part in parts {
                 if part.ends_with(':') {
-                    // label = part;
-                    // let label: &str = &label.replace(":", "");
                     hash_map_labels.insert(&part[..(part.len() - 1)], code_line);
                 } else {
                     my_array.push(part);
@@ -169,17 +166,11 @@ fn main() {
             }
         }
 
-        // if let Some(l) = label {
-        //     my_array.push(l);
-        // }
         arr.push(my_array);
     }
 
-    // print!("{:?}", hash_map_labels);
-    // print!("{:?}", arr[arr.len() - 1]);
-
     if is_syntax_error(arr.clone(), hash_map_labels.clone()) {
-        if arr[arr.len() - 1] != vec!["beq", "zero", "zero", "0"] {
+        if arr[arr.len() - 1] != vec!["beq", "zero", "zero", "0"] || arr[arr.len() - 1] != vec!["halt"] {
             print!("Syntax error: Virtual Hault Not found");
         }
         exit(0);
