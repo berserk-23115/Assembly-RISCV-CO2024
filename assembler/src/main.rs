@@ -69,8 +69,8 @@ fn main() {
         ("mul", vec!["0000001", "000", "0000000"]),
         ("rst", vec!["0000001", "001", "0000000"]),
         ("halt", vec!["0000001", "010", "0000000"]),
-        ("rvrs", vec!["0000001", "011", "0000000"]),
-    ];
+        ("rvrs", vec!["0000001", "011", "0000000"])
+    ].iter().cloned().collect();
 
     let hash_map2: HashMap<&str, &str> = [
         ("x0", "00000"),
@@ -217,10 +217,7 @@ fn main() {
             machine_code.push(bonus(&hash_map_bonus, &hash_map2, &line))
         }
     }
-
-    // for line in machine_code {
-    //     print!("\n{line}\n");
-    // }
+    
     let filename = "output.txt";
 
     match write_output(filename, &machine_code.clone()) {

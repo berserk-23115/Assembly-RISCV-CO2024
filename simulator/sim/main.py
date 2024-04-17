@@ -59,6 +59,7 @@ mem = {
 }
 
 
+
 def hex_format(str):
     x = str[2:]
     return "0x" + (10-len(str))*"0" + x
@@ -143,28 +144,22 @@ def matching_rtype(inst, rf, r1, r2, registers=registers, mem=mem):
             print(registers[rf])
         case "sub":
             registers[rf] = registers[r1] - registers[r2]
-            # print(registers[rf])
         case "slt":
             if registers[r1] < registers[r2]:
                 registers[rf] = 1
         case "sltu":
-            if registers[r1] < registers[r2]:
+            if convertion2(int_to_32(registers[r1])) < convertion2(int_to_32(registers[r2])):
                 registers[rf] = 1
         case "xor":
             registers[rf] = registers[r1] ^ registers[r2]
-            # print(registers[rf])
         case "sll":
-            registers[rf] = registers[r1] * pow(2, registers[r2])
-            # print(registers[rf])
+            registers[rf] = registers[r1] * pow(2, convertion2(int_to_32(registers[r2])))
         case "srl":
-            registers[rf] = registers[r1] / pow(2, registers[r2])
-            # print(registers[rf])
+            registers[rf] = registers[r1] / pow(2, convertion2(int_to_32(registers[r2])))
         case "or":
             registers[rf] = registers[r1] | registers[r2]
-            # print(registers[rf])
         case "and":
             registers[rf] = registers[r1] & registers[r2]
-            # print(registers[rf])
 
 
 def matching_itype(inst, rf, r1, imm, pc, registers=registers, mem=mem):
@@ -200,7 +195,7 @@ def matching_itype(inst, rf, r1, imm, pc, registers=registers, mem=mem):
             pc += 4
             # print(registers[rf])
         case "sltiu":
-            if registers[r1] < convertion(imm):
+            if convertion2(int_to_32(registers[r1])) < convertion2(int_to_32(imm)):
                 registers[rf] = 1
             pc += 4
         case "jalr":
@@ -214,13 +209,18 @@ def matching_itype(inst, rf, r1, imm, pc, registers=registers, mem=mem):
     return int(pc)
 
 
-def matching_stype(inst, rf, r1, imm):
+def matching_stype(inst, rf, r1, imm, registers=registers, mem=mem):
     match inst:
         case "sw":
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            print(registers[r1])
+            print((registers[r1] + convertion(imm)))
+            print(hex(registers[r1] + convertion(imm)))
             mem[hex(registers[r1] + convertion(imm))] = registers[rf]
 
 
-def btype_s(my_array, registers, pc):
+def btype_s(my_array, registers, pc, mem=mem):
+    
     print(my_array)
     imm = my_array[0:1] + my_array[24:25] + my_array[1:7] + my_array[20:24] + "0"
     print(imm)
@@ -251,19 +251,19 @@ def btype_s(my_array, registers, pc):
             else:
                 pc += 4
         case "101":
-            if abs(registers[rs1]) >= abs(registers[rs2]):
+            if convertion2(int_to_32(registers[rs1])) >= convertion2(int_to_32(registers[rs2])):
                 imm = signed_binaryToDecimal(int(imm), int(imm[0]))
                 pc += imm
             else:
                 pc += 4
         case "110":
-            if registers[rs1] < registers[rs2]:
+            if convertion2(int_to_32(registers[rs1])) < convertion2(int_to_32(registers[rs2])):
                 imm = binaryToDecimal(int(imm))
                 pc += imm
             else:
                 pc += 4
         case "111":
-            if abs(registers[rs1]) < abs(registers[rs2]):
+            if convertion2(int_to_32(registers[rs1])) < convertion2(int_to_32(registers[rs2])):
                 imm = binaryToDecimal(int(imm))
                 pc += imm
             else:
@@ -299,7 +299,7 @@ def write_reg():
 
 
 def write_mem():
-    f = open("/Users/anshaanyagoel/Downloads/assembler/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
+    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
     for i in mem:
         f.write(f"{hex_format(i)}:0b{int_to_32(mem[i])}")
         f.write("\n")
@@ -310,7 +310,7 @@ def write_mem():
 if __name__ == "__main__":
     # FIXME: file path
     file_path = os.path.abspath(
-        "/Users/anshaanyagoel/Downloads/assembler/Assembly-RISCV-CO2024/simulator/sim/input.txt"
+        "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt"
     )
     # print(file_path)
     f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "w")
@@ -325,6 +325,7 @@ if __name__ == "__main__":
     while not halt:
         print(pc)
         # TODO: break loop logic
+        original_pc = pc
 
         line = data[pc // 4]
         # print(line)
@@ -369,7 +370,10 @@ if __name__ == "__main__":
             rd = line[7:12]
             funct3 = line[17:20]
             imm2 = line[20:25]
-            imm = imm2 + imm1
+            imm = imm1 + imm2
+            print("//////////////////////////////////////")
+            print(imm1+imm2)
+            print(imm2+imm1)
             for keys, values in hash_map.items():
                 if values[0] == opcode and values[1] == funct3:
                     # print(keys)
@@ -384,16 +388,16 @@ if __name__ == "__main__":
         elif opcode == "0110111":
             print("U-type")
             # TODO: U-type logic
-            opcode = input[25:31]
+            opcode = line[25:31]
             if opcode == "0110111":
-                immediate_bin = input[0:20]
-                register_bin = input[20:25]
+                immediate_bin = line[0:20]
+                register_bin = line[20:25]
                 final_bin = immediate_bin+"000000000000"
                 dict[register_bin] = final_bin
             elif opcode == "0010111":
                 programcount = binaryToDecimal(pc)
-                immediate_bin = input[0:20]
-                register_bin = input[20:25]
+                immediate_bin = line[0:20]
+                register_bin = line[20:25]
                 final_bin = immediate_bin+"000000000000"
                 final_num = binaryToDecimal(final_bin)
                 final_num += programcount
@@ -401,6 +405,7 @@ if __name__ == "__main__":
                     dict[register_bin] = final_num
                 else:
                     dict[register_bin] = final_num
+            pc += 4
 
         elif opcode == "1101111":
             print("J-type")
@@ -437,11 +442,11 @@ if __name__ == "__main__":
         #             registers[rs1] = z
         else:
             pc += 4
-        if (pc // 4 >= len(data)):
+        if (pc // 4 >= len(data)) or (pc == original_pc):
             halt = True
 
         # write_reg()
-        f = open("/Users/anshaanyagoel/Downloads/assembler/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
+        f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
         f.write("0b")
         f.write(int_to_32(pc))
         f.write(" ")

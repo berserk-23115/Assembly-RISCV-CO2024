@@ -247,16 +247,66 @@ pub fn jtype(
 }
 
 pub fn bonus(
-    &hash_map_bonus,
-    &hash_map2,
-    &my_array
-    ) -> String {
-
+    hash_map_bonus: &HashMap<&str, Vec<&str>>,
+    hash_map2: &HashMap<&str, &str>,
+    my_array: &Vec<&str>,
+) -> String {
     let mut s: String = String::new();
 
     let instruction: &str = my_array[0];
-    let instruction_bin: &str = hash_map[instruction];
     let register_bin: &str = hash_map2[my_array[1]];
 
+    if instruction =="mul"{
+        let register_bin1: &str = hash_map2[my_array[2]];
+        let register_bin2: &str = hash_map2[my_array[3]];
+
+        s.push_str("0000000");
+        s.push_str(register_bin2);
+        s.push_str(register_bin1);
+        s.push_str("000");
+        s.push_str(register_bin);
+        s.push_str("0000001");
+
+        s
+    }
+    
+    else if instruction=="rst"{
+        s.push_str("0000000");
+        s.push_str("00000");
+        s.push_str("00000");
+        s.push_str("001");
+        s.push_str("00000");
+        s.push_str("0000001");
+
+        s
+    }
+
+    else if instruction=="halt"{
+        s.push_str("0000000");
+        s.push_str("00000");
+        s.push_str("00000");
+        s.push_str("010");
+        s.push_str("00000");
+        s.push_str("0000001");
+
+        s
+    }
+
+    else if instruction=="rvrs"{
+        let register_bin1: &str = hash_map2[my_array[1]];
+        let register_bin2: &str = hash_map2[my_array[2]];
+
+        s.push_str("0000000");
+        s.push_str("00000");
+        s.push_str(register_bin2);
+        s.push_str("011");
+        s.push_str(register_bin1);
+        s.push_str("0000001");
+
+        s
+    }
+    else {
+        s
+    }
 
 }
