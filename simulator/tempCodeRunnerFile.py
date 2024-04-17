@@ -1,1 +1,0 @@
-  if hash_map[i][0] == optcode and hash_map[i][1] == funct3 and hash_map[i][2] == funct7:
