@@ -222,16 +222,21 @@ def matching_stype(inst, rf, r1, imm):
 
 
 def btype_s(my_array, registers, pc):
-    imm = my_array[0:1] + my_array[26:27] + \
-        my_array[2:8] + my_array[21:25] + "0"
-    rs2 = my_array[8:13]
-    rs1 = my_array[13:18]
-    func3 = my_array[18:21]
+    print(my_array)
+    imm = my_array[0:1] + my_array[24:25] + my_array[1:7] + my_array[20:24] + "0"
+    print(imm)
+    rs2 = my_array[7:12]
+    rs1 = my_array[12:17]
+    func3 = my_array[17:20]
     match func3:
         case "000":
             if registers[rs1] == registers[rs2]:
+                print(imm)
                 imm = binaryToDecimal(int(imm))
+                print(imm)
+                print("blablablabla")
                 pc += imm
+                print(pc)
             else:
                 pc += 4
         case "001":
@@ -295,7 +300,7 @@ def write_reg():
 
 
 def write_mem():
-    f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
+    f = open("/Users/anshaanyagoel/Downloads/assembler/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
     for i in mem:
         f.write(f"{hex_format(i)}:0b{int_to_32(mem[i])}")
         f.write("\n")
@@ -306,7 +311,7 @@ def write_mem():
 if __name__ == "__main__":
     # FIXME: file path
     file_path = os.path.abspath(
-        "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt"
+        "/Users/anshaanyagoel/Downloads/assembler/Assembly-RISCV-CO2024/simulator/sim/input.txt"
     )
     # print(file_path)
 
@@ -435,7 +440,7 @@ if __name__ == "__main__":
             halt = True
 
         # write_reg()
-        f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
+        f = open("/Users/anshaanyagoel/Downloads/assembler/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
         f.write("0b")
         f.write(int_to_32(pc))
         f.write(" ")
