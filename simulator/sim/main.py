@@ -262,7 +262,7 @@ def btype_s(my_array, registers, pc, mem=mem):
             else:
                 pc += 4
         case "111":
-            if convertion2(int_to_32(registers[rs1])) < convertion2(int_to_32(registers[rs2])):
+            if convertion2(int_to_32(registers[rs1])) < (registers[rs2]):
                 imm = binaryToDecimal(int(imm))
                 pc += imm
             else:

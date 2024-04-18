@@ -36,7 +36,7 @@ Simulator must take a machine code file as input and produce a trace file as out
 All input and output files need to be stored with ".txt" extentions.
 Format $python3 Simulator.py input_machine_code_file_path output_trace_file_path
 1. Rename your simulator code file as "Simulator.py"
-2. Place this file inside the already created SimpleSimulator folder.
-For linux users: $python3 src/main.py --no-asm --linux
+2. Place this file inside the alreadpython3 src/main.py --no-asm --linuxy created SimpleSimulator folder.
+For linux users: $
 For windows user: >python3 src\main.py --no-asm --windows
 

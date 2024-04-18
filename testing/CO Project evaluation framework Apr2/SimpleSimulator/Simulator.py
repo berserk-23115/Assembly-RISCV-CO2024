@@ -7,13 +7,16 @@ output_name = sys.argv[2]
 
 # Open the input and output files
 file = open(file_name, 'r')
+outfile = open(output_name, 'w')
+outfile.close()
 outfile = open(output_name, 'a')
+
 
 registers = {format(i, '05b'): 0 for i in range(32)}
 registers["00010"] = 256
-# print(registers)
 
 hash_map = {
+    # R-type
     "add": ["0110011", "000", "0000000"],
     "sub": ["0110011", "000", "0100000"],
     "sll": ["0110011", "001", "0000000"],
@@ -23,13 +26,32 @@ hash_map = {
     "srl": ["0110011", "101", "0000000"],
     "or": ["0110011", "110", "0000000"],
     "and": ["0110011", "111", "0000000"],
+    # I-type
     "lw": ["0000011", "010"],
     "addi": ["0010011", "000"],
     "sltiu": ["0010011", "011"],
     "jalr": ["1100111", "000"],
+    # S-type
     "sw": ["0100011", "010"],
+    # B-type
+    "beq": ["1100011", "000"],
+    "bne": ["1100011", "001"],
+    "blt": ["1100011", "100"],
+    "bge": ["1100011", "101"],
+    "bltu": ["1100011", "110"],
+    "bgeu": ["1100011", "111"],
+    # U-type
+    "lui": ["0110111"],
+    "auipc": ["0010111"],
+    # J-type
+    "jal": ["1101111"],
+    # BONUS
+    "mul": ["0000000", "000", "0000001"],
+    "rst": ["0000000", "000", "0000010"],
+    "halt": ["0000000", "000", "0000011"],
+    "rvrs": ["0000000", "000", "0000100"]
 }
-pc = 0
+
 mem = {
     "0x10000": 0,
     "0x10004": 0,
@@ -65,372 +87,310 @@ mem = {
     "0x1007c": 0,
 }
 
+PC = 0
+halt = False
+
+
+def unsigned_binary_to_decimal(binary):
+    return int(binary, 2)
+
+
+def decimal_to_32bit_binary(decimal):
+    if decimal >= 0:
+        binary = format(decimal, '032b')
+        return binary
+    elif decimal < 0:
+        binary = format(decimal + 1, '032b')
+        binary = list(binary)
+        for i in range(32):
+            if binary[i] == "0":
+                binary[i] = "1"
+            else:
+                binary[i] = "0"
+        binary[0] = "1"
+        binary = ''.join(binary)
+        return binary
+
+
+def decimal_to_unsigned(decimal):
+    decimal = decimal_to_32bit_binary(decimal)
+    unsigned = 0
+    for i in range(32):
+        idx = -(i+1)
+        if decimal[idx] == '1':
+            unsigned += 2**i
+    return unsigned
+
+
+def rtype(inst, rf, r1, r2):
+    match inst:
+        case "add":
+            registers[rf] = registers[r1] + registers[r2]
+        case "sub":
+            registers[rf] = registers[r1] - registers[r2]
+        case "sll":
+            registers[rf] = registers[r1] << decimal_to_unsigned(registers[r2])
+        case "slt":
+            if registers[r1] < registers[r2]:
+                registers[rf] = 1
+        case "sltu":
+            if decimal_to_unsigned(registers[r1]) < decimal_to_unsigned(registers[r2]):
+                registers[rf] = 1
+        case "xor":
+            registers[rf] = registers[r1] ^ registers[r2]
+        case "srl":
+            registers[rf] = registers[r1] >> decimal_to_unsigned(registers[r2])
+        case "or":
+            registers[rf] = registers[r1] | registers[r2]
+        case "and":
+            registers[rf] = registers[r1] & registers[r2]
+    global PC
+    PC += 4
+
+
+def itype(inst, rf, r1, imm):
+    global PC
+    imm = int(imm, 2)
+    match inst:
+        case "lw":
+            registers[rf] = mem[hex(registers[r1] + imm)]
+            PC += 4
+        case "addi":
+            registers[rf] = registers[r1] + imm
+            PC += 4
+        case "sltiu":
+            if decimal_to_unsigned(registers[r1]) < decimal_to_unsigned(imm):
+                registers[rf] = 1
+            PC += 4
+        case "jalr":
+            registers[rf] = PC + 4
+            PC = registers[rf] + imm
+            PC = PC & 0xFFFFFFFE
+
+
+def stype(_, r1, r2, imm):
+    imm = int(imm, 2)
+    mem[hex(registers[r1] + imm)] = registers[r2]
+    global PC
+    PC += 4
+
+
+def btype(inst, r1, r2, imm):
+    global PC
+    imm = int(imm, 2)
+    match inst:
+        case "beq":
+            if registers[r1] == registers[r2]:
+                PC += imm
+            else:
+                PC += 4
+        case "bne":
+            if registers[r1] != registers[r2]:
+                PC += imm
+            else:
+                PC += 4
+        case "blt":
+            if registers[r1] < registers[r2]:
+                PC += imm
+            else:
+                PC += 4
+        case "bge":
+            if registers[r1] >= registers[r2]:
+                PC += imm
+            else:
+                PC += 4
+        case "bltu":
+            if decimal_to_unsigned(registers[r1]) < decimal_to_unsigned(registers[r2]):
+                PC += imm
+            else:
+                PC += 4
+        case "bgeu":
+            if decimal_to_unsigned(registers[r1]) >= decimal_to_unsigned(registers[r2]):
+                PC += imm
+            else:
+                PC += 4
+
+
+def utype(inst, rf, imm):
+    global PC
+    imm = int(imm, 2)
+    match inst:
+        case "lui":
+            registers[rf] = imm
+        case "auipc":
+            registers[rf] = PC + imm
+    PC += 4
+
+
+def jtype(inst, rf, imm):
+    global PC
+    imm = int(imm, 2)
+    match inst:
+        case "jal":
+            registers[rf] = PC + 4
+            PC += imm
+            PC = PC & 0xFFFFFFFE
+
+
+def bonus(inst, rf, r1, r2):
+    match inst:
+        case "mul":
+            registers[rf] = registers[r1] * registers[r2]
+        case "rst":
+            for i in registers:
+                registers[i] = 0
+        case "halt":
+            global halt
+            halt = True
+        case "rvrs":
+            x = decimal_to_32bit_binary(registers[rf])
+            z = unsigned_binary_to_decimal(x[::-1])
+            registers[r1] = z
+
 
 def hex_format(str):
     x = str[2:]
     return "0x" + (10-len(str))*"0" + x
 
 
-def convertion(y):
-    if y[0] == "0":
-        con = int(y, 2)
-        return con
-    elif y[0] == "1":
-        y = list(y)
-        for i in range(12):
-            if y[i] == "0":
-                y[i] = "1"
-            else:
-                y[i] = "0"
-        y = "".join(y)
-        con = int(y, 2)
-        con = con + 1
-        fin = con - (con * 2)
-        return fin
+def main():
+    # file_path = os.path.abspath(
+    #     file_name
+    # )
+    # f = open(outfile, "w")
+    # f.close()
 
+    # with open(file_path, "r") as f:
+    data = file.readlines()
 
-def signed_binaryToDecimal(binary, sign):
+    global PC
+    global halt
+    while not halt:
+        original_PC = PC
+        line = data[PC//4]
 
-    decimal, i = 0, 0
-    if sign == 0:
-        while binary != 0:
-            dec = binary % 10
-            decimal = decimal + dec * pow(2, i)
-            binary = binary // 10
-            i += 1
-        return decimal
-    else:
-        binary = binary % 1000000000000
-        while binary != 0:
-            dec = binary % 10
-            decimal = decimal + dec * pow(2, i)
-            binary = binary // 10
-            i += 1
-        return decimal * (-1)
+        opcode = line[25:32]
 
+        match opcode:
+            # R-type
+            case "0110011":
+                funct7 = line[0:7]
+                rs2 = line[7:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3 and values[2] == funct7:
+                        rtype(keys, rd, rs1, rs2)
 
-def binaryToDecimal(binary):
+            # I-type
+            case "0000011":
+                imm = line[0:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3:
+                        itype(keys, rd, rs1, imm)
 
-    decimal, i = 0, 0
-    while binary != 0:
-        dec = binary % 10
-        decimal = decimal + dec * pow(2, i)
-        binary = binary // 10
-        i += 1
-    return decimal
+            case "0010011":
+                imm = line[0:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3:
+                        itype(keys, rd, rs1, imm)
 
+            case "1100111":
+                imm = line[0:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3:
+                        itype(keys, rd, rs1, imm)
 
-def int_to_32(x):
-    if x >= 0:
-        y = format(x, '032b')
-        return y
-        print(y)
-    elif x < 0:
-        y = format(x + 1, '032b')
-        # print(y)
-        y = list(y)
-        for i in range(32):
-            if y[i] == "0":
-                y[i] = "1"
-            else:
-                y[i] = "0"
-        y[0] = "1"
-        y = ''.join(y)
-        return y
+            # S-type
+            case "0100011":
+                imm = line[0:7] + line[20:25]
+                rs2 = line[7:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3:
+                        stype(keys, rs1, rs2, imm)
 
+            # B-type
+            case "1100011":
+                imm = line[0] + line[24] + line[1:7] + line[20:24] + "0"
+                rs2 = line[7:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3:
+                        btype(keys, rs1, rs2, imm)
 
-def convertion2(y):
-    return int(y, 2)
+            # U-type
+            case "0110111":
+                imm = line[0:20] + "000000000000"
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode:
+                        utype(keys, rd, imm)
+            
+            case "0010111":
+                imm = line[0:20] + "000000000000"
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode:
+                        utype(keys, rd, imm)
 
+            # J-type
+            case "1101111":
+                imm = line[0] + line[12:20] + line[11] + line[1:11] + "0"
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode:
+                        jtype(keys, rd, imm)
 
-def matching_rtype(inst, rf, r1, r2):
-    global registers
-    match inst:
-        case "add":
-            registers[rf] = registers[r1] + registers[r2]
-            # print(registers[rf])
-        case "sub":
-            registers[rf] = registers[r1] - registers[r2]
-            # print(registers[rf])
-        case "slt":
-            if registers[r1] < registers[r2]:
-                registers[rf] = 1
-        case "sltu":
-            if registers[r1] < registers[r2]:
-                registers[rf] = 1
-        case "xor":
-            registers[rf] = registers[r1] ^ registers[r2]
-            # print(registers[rf])
-        case "sll":
-            registers[rf] = registers[r1] * pow(2, registers[r2])
-            # print(registers[rf])
-        case "srl":
-            registers[rf] = registers[r1] / pow(2, registers[r2])
-            # print(registers[rf])
-        case "or":
-            registers[rf] = registers[r1] | registers[r2]
-            # print(registers[rf])
-        case "and":
-            registers[rf] = registers[r1] & registers[r2]
-            # print(registers[rf])
+            # BONUS
+            case "0000000":
+                funct7 = line[0:7]
+                rs2 = line[7:12]
+                rs1 = line[12:17]
+                funct3 = line[17:20]
+                rd = line[20:25]
+                opcode = line[25:32]
+                for keys, values in hash_map.items():
+                    if values[0] == opcode and values[1] == funct3 and values[2] == funct7:
+                        bonus(keys, rd, rs1, rs2)
 
+        # register write
+        # f = open(outfile, "a")
+        outfile.write("0b"+decimal_to_32bit_binary(PC) + " ")
+        for i in registers:
+            outfile.write("0b"+decimal_to_32bit_binary(registers[i]) + " ")
+        outfile.write("\n")
+        # outfile.close()
 
-def matching_itype(inst, rf, r1, imm, pc, registers=registers, mem=mem):
-    match inst:
-        case "lw":
-            # print("###########################################")
-            # print(r1, imm)
-            # print(registers[r1], convertion(imm))
-            # print((hex(registers[r1] + convertion(imm))))
-            try:
-                # if (hex(registers[r1] + convertion(imm)) in mem):
-                #     print("True")
-                # else:
-                #     print("False")
-                registers[rf] = mem[(
-                    hex(registers[r1] + convertion(imm)))]
-                # print(hex(registers[r1] + convertion(imm)))
-                # print(hex_format(hex(registers[r1] + convertion(imm))))
-                # print(registers[rf])
-                # print("AAAAANNNNNUUUUUSSSSHHHHHHKKKKKKAAAAA")
-            except KeyError:
-                # if (hex(registers[r1] + convertion(imm)) in mem):
-                #     print("True")
-                # else:
-                #     print("False")
-                mem[(hex(registers[r1] + convertion(imm)))] = 0
-                registers[rf] = mem[hex(registers[r1] + convertion(imm))]
-            pc += 4
-            # print(registers[rf])
-        case "addi":
-            registers[rf] = registers[r1] + convertion(imm)
-            # print(convertion(imm), registers[rf])
-            pc += 4
-            # print(registers[rf])
-        case "sltiu":
-            if registers[r1] < convertion(imm):
-                registers[rf] = 1
-            pc += 4
-        case "jalr":
-            registers[rf] = pc + 4
-            pc = registers[r1] + convertion(imm)
-            pc = int_to_32(pc)
-            temp = pc[:-1] + "0"
-            pc = binaryToDecimal(int(temp))
+        if (PC//4 >= len(data) or PC == original_PC):
+            halt = True
 
-    # print(pc)
-    return int(pc)
-
-
-def matching_stype(inst, rf, r1, imm):
-    match inst:
-        case "sw":
-            mem[hex(registers[r1] + convertion(imm))] = registers[rf]
-
-
-def btype_s(my_array, registers, pc):
-    imm = my_array[0:1] + my_array[26:27] + \
-        my_array[2:8] + my_array[21:25] + "0"
-    rs2 = my_array[8:13]
-    rs1 = my_array[13:18]
-    func3 = my_array[18:21]
-    match func3:
-        case "000":
-            if registers[rs1] == registers[rs2]:
-                imm = binaryToDecimal(int(imm))
-                pc += imm
-            else:
-                pc += 4
-        case "001":
-            if registers[rs1] != registers[rs2]:
-                imm = binaryToDecimal(int(imm))
-                pc += imm
-            else:
-                pc += 4
-        case "100":
-            if registers[rs1] >= registers[rs2]:
-                imm = binaryToDecimal(int(imm))
-                pc += imm
-            else:
-                pc += 4
-        case "101":
-            if abs(registers[rs1]) >= abs(registers[rs2]):
-                imm = signed_binaryToDecimal(int(imm), int(imm[0]))
-                pc += imm
-            else:
-                pc += 4
-        case "110":
-            if registers[rs1] < registers[rs2]:
-                imm = binaryToDecimal(int(imm))
-                pc += imm
-            else:
-                pc += 4
-        case "111":
-            if abs(registers[rs1]) < abs(registers[rs2]):
-                imm = binaryToDecimal(int(imm))
-                pc += imm
-            else:
-                pc += 4
-    return pc
-
-
-def matching_bonus(inst, rf, r1, r2):
-    match inst:
-        case "mul":
-            registers[rf] = registers[r1] * registers[r2]
-            # print(registers[rf])
-        case "rst":
-            for i in registers:
-                registers[i] = 0
-        case "halt":
-            pass
-        case "rvrs":
-            # print(registers[rf])
-            x = int_to_32(registers[rf])
-            # print(x)
-            z = convertion2(x[::-1])
-            # print(z)
-            registers[r1] = z
+    # memory write
+    for i in mem:
+        outfile.write(f"{hex_format(i)}:0b{decimal_to_32bit_binary(mem[i])}")
+        outfile.write("\n")
 
 
 if __name__ == "__main__":
-    # FIXME: file path
-    file_path = os.path.abspath(
-        "/home/ayush/Assembly-RISCV-CO2024/simulator/sim/input.txt"
-    )
-    # print(file_path)
-
-    with open(file_path, "r") as f:
-        data = f.readlines()
-
-    # print(data)
-
-    halt = False
-    while not halt:
-        # print(pc)
-        # TODO: break loop logic
-
-        line = data[pc // 4]
-        # print(line)
-        opcode = line[25:32]
-        # print(opcode)
-
-        if opcode == "0110011":
-            # print("R-type")
-            funct7 = line[0:7]
-            rs2 = line[7:12]
-            rs1 = line[12:17]
-            funct3 = line[17:20]
-            rd = line[20:25]
-            opcode = line[25:32]
-            for keys, values in hash_map.items():
-                if values[0] == opcode and values[1] == funct3 and values[2] == funct7:
-                    # print(values[0], values[1], values[2])
-                    matching_rtype(keys, rd, rs1, rs2)
-            pc += 4
-
-        elif opcode == "0000011" or opcode == "0010011" or opcode == "1100111":
-            # print("I-type")
-            imm = line[0:12]
-            # print(line)
-            # print("----------------")
-            # print(imm)
-            # print(convertion(imm))
-            rs1 = line[12:17]
-            funct3 = line[17:20]
-            rd = line[20:25]
-            opcode = line[25:32]
-
-            for keys, values in hash_map.items():
-                if values[0] == opcode and values[1] == funct3:
-                    # print(keys)
-                    pc = matching_itype(keys, rd, rs1, imm, pc)
-
-        elif opcode == "0100011":
-            # print("S-type")
-            imm1 = line[0:7]
-            rs1 = line[12:17]
-            rd = line[7:12]
-            funct3 = line[17:20]
-            imm2 = line[20:25]
-            imm = imm2 + imm1
-            for keys, values in hash_map.items():
-                if values[0] == opcode and values[1] == funct3:
-                    # print(keys)
-                    matching_stype(keys, rd, rs1, imm)
-            pc += 4
-
-        elif opcode == "1100011":
-            # print("B-type")
-            pc = btype_s(line, registers, pc)
-
-        elif opcode == "0110111":
-            # print("U-type")
-            # TODO: U-type logic
-            opcode = input[25:31]
-            if opcode == "0110111":
-                immediate_bin = input[0:20]
-                register_bin = input[20:25]
-                final_bin = immediate_bin+"000000000000"
-                dict[register_bin] = final_bin
-            elif opcode == "0010111":
-                programcount = binaryToDecimal(pc)
-                immediate_bin = input[0:20]
-                register_bin = input[20:25]
-                final_bin = immediate_bin+"000000000000"
-                final_num = binaryToDecimal(final_bin)
-                final_num += programcount
-                if (final_num >= 0):
-                    dict[register_bin] = final_num
-                else:
-                    dict[register_bin] = final_num
-
-        elif opcode == "1101111":
-            # print("J-type")
-            # TODO: J-type logic
-            reg = line[20:25]
-            immediate = line[0]+line[1:9]+line[9:10]+line[10:20]+"0"
-            registers[reg] = pc+4
-            pc = binaryToDecimal(immediate)
-
-        # elif opcode == "0000001":
-        #     print("BONUS")
-        #     funct7 = line[0:7]
-        #     rs2 = line[7:12]
-        #     rs1 = line[12:17]
-        #     funct3 = line[17:20]
-        #     rd = line[20:25]
-        #     optcode = line[25:32]
-
-        #     match inst:
-        #         case "mul":
-        #             registers[rd] = registers[rs1] * registers[rs2]
-        #             print(registers[rd])
-        #         case "rst":
-        #             for i in registers:
-        #                 registers[i] = 0
-        #         case "halt":
-        #             break
-        #         case "rvrs":
-        #             print(registers[rd])
-        #             x = int_to_32(registers[rd])
-        #             print(x)
-        #             z = convertion2(x[::-1])
-        #             print(z)
-        #             registers[rs1] = z
-        else:
-            pc += 4
-        if (pc // 4 >= len(data)):
-            halt = True
-
-        outfile.write("0b")
-        outfile.write(int_to_32(pc))
-        outfile.write(" ")
-        for i in registers:
-            outfile.write("0b")
-            outfile.write(str(int_to_32(registers[i])))
-            outfile.write(" ")
-    
-    for i in mem:
-        outfile.write(f"{hex_format(i)}:{int_to_32(mem[i])}")
-        outfile.write("\n")
+    main()

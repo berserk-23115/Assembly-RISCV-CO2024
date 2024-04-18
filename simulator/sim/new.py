@@ -101,15 +101,78 @@ def decimal_to_32bit_binary(decimal):
         binary = ''.join(binary)
         return binary
 
+def signed_binary_to_decimal(binary):
+    if binary[0] == "0":
+        return unsigned_binary_to_decimal(binary)
+    else:
+        binary = list(binary)
+        for i in range(32):
+            if binary[i] == "0":
+                binary[i] = "1"
+            else:
+                binary[i] = "0"
+        binary[0] = "0"
+        binary = ''.join(binary)
+        return -1 * (unsigned_binary_to_decimal(binary) + 1)
 
-def decimal_to_unsigned(decimal):
-    decimal = decimal_to_32bit_binary(decimal)
-    unsigned = 0
-    for i in range(32):
-        idx = -(i+1)
-        if decimal[idx] == '1':
-            unsigned += 2**i
-    return unsigned
+# def sign_extension(decimal_number, num_bits=32):
+#     if decimal_number >= 0:
+#         binary_number = bin(decimal_number)[2:].zfill(num_bits)
+#     else:
+#         binary_number = bin(2**num_bits + decimal_number)[2:]
+#     return binary_number
+
+def integer_to_binary(integer_num):
+    if integer_num >= 0:
+        # Convert positive integer part to binary
+        binary_representation = bin(integer_num)[2:]
+        return binary_representation.zfill(32)  # Add leading zero for positive numbers
+    else:
+        # Convert negative integer part to binary using two's complement
+        binary_representation = bin(-integer_num)[2:]
+        num_bits = len(binary_representation)
+        # Determine the number of bits required for the two's complement representation
+        num_bits_required = num_bits + 1  # Add one bit for sign
+        binary_representation = binary_representation.zfill(32)
+        # Flip the bits
+        flipped_bits = ''.join('1' if bit == '0' else '0' for bit in binary_representation)
+        # Add one to the flipped bits
+        incremented_bits = bin(int(flipped_bits, 2) + 1)[2:]
+        # Pad with leading zeros if necessary
+        binary_representation = incremented_bits.zfill(32)
+        return binary_representation
+
+def binary_to_integer(binary_str):
+    # Check if the binary number is negative
+    is_negative = binary_str[0] == '1'
+
+    # Convert binary string to integer
+    integer_value = int(binary_str, 2)
+
+    # If the number is negative, compute its two's complement
+    if is_negative:
+        num_bits = len(binary_str)
+        integer_value -= 2 ** num_bits
+
+    return integer_value
+
+def twos_complement(binary_num):
+    # Invert the bits
+    inverted_bits = ''.join('1' if bit == '0' else '0' for bit in binary_num)
+
+    # Add one to the inverted bits
+    carry = 1
+    result_bits = ''
+    for bit in inverted_bits[::-1]:
+        if bit == '1' and carry == 1:
+            result_bits = '0' + result_bits
+        elif bit == '0' and carry == 1:
+            result_bits = '1' + result_bits
+            carry = 0
+        else:
+            result_bits = bit + result_bits
+
+    return result_bits
 
 
 def rtype(inst, rf, r1, r2):
@@ -119,17 +182,17 @@ def rtype(inst, rf, r1, r2):
         case "sub":
             registers[rf] = registers[r1] - registers[r2]
         case "sll":
-            registers[rf] = registers[r1] << decimal_to_unsigned(registers[r2])
+            registers[rf] = registers[r1] << int(integer_to_binary(registers[r2]),2)
         case "slt":
             if registers[r1] < registers[r2]:
                 registers[rf] = 1
         case "sltu":
-            if decimal_to_unsigned(registers[r1]) < decimal_to_unsigned(registers[r2]):
+            if int(integer_to_binary(registers[r1]),2) < int(integer_to_binary(registers[r2]),2):
                 registers[rf] = 1
         case "xor":
             registers[rf] = registers[r1] ^ registers[r2]
         case "srl":
-            registers[rf] = registers[r1] >> decimal_to_unsigned(registers[r2])
+            registers[rf] = registers[r1] >> int(integer_to_binary(registers[r2]),2)
         case "or":
             registers[rf] = registers[r1] | registers[r2]
         case "and":
@@ -140,35 +203,32 @@ def rtype(inst, rf, r1, r2):
 
 def itype(inst, rf, r1, imm):
     global PC
-    imm = int(imm, 2)
     match inst:
         case "lw":
-            registers[rf] = mem[hex(registers[r1] + imm)]
+            registers[rf] = mem[hex(registers[r1] + binary_to_integer(imm))]
             PC += 4
         case "addi":
-            registers[rf] = registers[r1] + imm
+            registers[rf] = registers[r1] + binary_to_integer(imm)
             PC += 4
         case "sltiu":
-            if decimal_to_unsigned(registers[r1]) < decimal_to_unsigned(imm):
+            if int(registers[r1],2) < int(imm,2):
                 registers[rf] = 1
             PC += 4
         case "jalr":
             registers[rf] = PC + 4
-            PC = registers[rf] + imm
+            PC = registers[rf] + binary_to_integer(imm)
             PC = PC & 0xFFFFFFFE
 
 
 def stype(_, r1, r2, imm):
-    imm = int(imm, 2)
-    mem[hex(registers[r1] + imm)] = registers[r2]
+    mem[hex(registers[r1] + binary_to_integer(imm))] = registers[r2]
     global PC
     PC += 4
 
 
 def btype(inst, r1, r2, imm):
     global PC
-    imm = int(imm, 2)
-    print(imm)
+    imm = binary_to_integer(imm)
     match inst:
         case "beq":
             if registers[r1] == registers[r2]:
@@ -191,12 +251,12 @@ def btype(inst, r1, r2, imm):
             else:
                 PC += 4
         case "bltu":
-            if decimal_to_unsigned(registers[r1]) < decimal_to_unsigned(registers[r2]):
+            if int(integer_to_binary(registers[r1],2)) < int(integer_to_binary(registers[r2],2)):
                 PC += imm
             else:
                 PC += 4
         case "bgeu":
-            if decimal_to_unsigned(registers[r1]) >= decimal_to_unsigned(registers[r2]):
+            if int(integer_to_binary(registers[r1],2)) >= int(integer_to_binary(registers[r2],2)):
                 PC += imm
             else:
                 PC += 4
@@ -204,7 +264,7 @@ def btype(inst, r1, r2, imm):
 
 def utype(inst, rf, imm):
     global PC
-    imm = int(imm, 2)
+    imm = binary_to_integer(imm)
     match inst:
         case "lui":
             registers[rf] = imm
@@ -215,7 +275,7 @@ def utype(inst, rf, imm):
 
 def jtype(inst, rf, imm):
     global PC
-    imm = int(imm, 2)
+    imm = binary_to_integer(imm)
     match inst:
         case "jal":
             registers[rf] = PC + 4
@@ -336,7 +396,7 @@ def main():
                 for keys, values in hash_map.items():
                     if values[0] == opcode:
                         utype(keys, rd, imm)
-            
+
             case "0010111":
                 imm = line[0:20] + "000000000000"
                 rd = line[20:25]
@@ -370,7 +430,7 @@ def main():
         f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
         f.write("0b"+decimal_to_32bit_binary(PC) + " ")
         for i in registers:
-            f.write("0b"+decimal_to_32bit_binary(registers[i]) + " ")
+            f.write("0b"+integer_to_binary(registers[i]) + " ")
         f.write("\n")
         f.close()
 
@@ -380,7 +440,7 @@ def main():
     # memory write
     f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
     for i in mem:
-        f.write(f"{hex_format(i)}:0b{decimal_to_32bit_binary(mem[i])}")
+        f.write(f"{hex_format(i)}:0b{integer_to_binary(mem[i])}")
         f.write("\n")
     print()
     f.close()
