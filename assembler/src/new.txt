@@ -1,0 +1,8 @@
+add s1,zero,zero
+add s2,zero,zero
+addi s1,zero,01
+addi s2,zero,16
+sll s1,s1,s2
+addi s5,zero,11
+mul s6,s2,s5
+halt

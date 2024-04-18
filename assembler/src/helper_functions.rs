@@ -147,6 +147,8 @@ pub fn is_syntax_error(lines: Vec<Vec<&str>>, hash_map_label: HashMap<&str, i32>
             && line.len() == 3
         {
             print!("");
+        } else if instructions[6].contains(&instruction) {
+            print!("");
         } else {
             syntax_errors.push(format!("Syntax Error in line {}: {:?}", line_no + 1, line));
         }

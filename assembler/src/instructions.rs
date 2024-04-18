@@ -254,9 +254,10 @@ pub fn bonus(
     let mut s: String = String::new();
 
     let instruction: &str = my_array[0];
-    let register_bin: &str = hash_map2[my_array[1]];
 
-    if instruction =="mul"{
+    if instruction == "mul" {
+        let register_bin: &str = hash_map2[my_array[1]];
+
         let register_bin1: &str = hash_map2[my_array[2]];
         let register_bin2: &str = hash_map2[my_array[3]];
 
@@ -268,9 +269,7 @@ pub fn bonus(
         s.push_str("0000001");
 
         s
-    }
-    
-    else if instruction=="rst"{
+    } else if instruction == "rst" {
         s.push_str("0000000");
         s.push_str("00000");
         s.push_str("00000");
@@ -279,9 +278,7 @@ pub fn bonus(
         s.push_str("0000001");
 
         s
-    }
-
-    else if instruction=="halt"{
+    } else if instruction == "halt" {
         s.push_str("0000000");
         s.push_str("00000");
         s.push_str("00000");
@@ -290,9 +287,7 @@ pub fn bonus(
         s.push_str("0000001");
 
         s
-    }
-
-    else if instruction=="rvrs"{
+    } else if instruction == "rvrs" {
         let register_bin1: &str = hash_map2[my_array[1]];
         let register_bin2: &str = hash_map2[my_array[2]];
 
@@ -304,9 +299,7 @@ pub fn bonus(
         s.push_str("0000001");
 
         s
-    }
-    else {
+    } else {
         s
     }
-
 }
