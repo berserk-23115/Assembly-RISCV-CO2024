@@ -178,24 +178,33 @@ def twos_complement(binary_num):
 def rtype(inst, rf, r1, r2):
     match inst:
         case "add":
+            print("add")    
             registers[rf] = registers[r1] + registers[r2]
         case "sub":
+            print("sub")
             registers[rf] = registers[r1] - registers[r2]
         case "sll":
+            print("sll")
             registers[rf] = registers[r1] << int(integer_to_binary(registers[r2]),2)
         case "slt":
+            print("slt")
             if registers[r1] < registers[r2]:
                 registers[rf] = 1
         case "sltu":
+            print("sltu")
             if int(integer_to_binary(registers[r1]),2) < int(integer_to_binary(registers[r2]),2):
                 registers[rf] = 1
         case "xor":
+            print("xor")
             registers[rf] = registers[r1] ^ registers[r2]
         case "srl":
+            print("srl")
             registers[rf] = registers[r1] >> int(integer_to_binary(registers[r2]),2)
         case "or":
+            print("or")
             registers[rf] = registers[r1] | registers[r2]
         case "and":
+            print("and")
             registers[rf] = registers[r1] & registers[r2]
     global PC
     PC += 4
@@ -231,32 +240,38 @@ def btype(inst, r1, r2, imm):
     imm = binary_to_integer(imm)
     match inst:
         case "beq":
+            print("beq")
             if registers[r1] == registers[r2]:
                 PC += imm
             else:
                 PC += 4
         case "bne":
+            print("bne")
             if registers[r1] != registers[r2]:
                 PC += imm
             else:
                 PC += 4
         case "blt":
+            print("blt")
             if registers[r1] < registers[r2]:
                 PC += imm
             else:
                 PC += 4
         case "bge":
+            print("bge")
             if registers[r1] >= registers[r2]:
                 PC += imm
             else:
                 PC += 4
         case "bltu":
-            if int(integer_to_binary(registers[r1],2)) < int(integer_to_binary(registers[r2],2)):
+            print("bltu")
+            if int(integer_to_binary(registers[r1]),2) < int(integer_to_binary(registers[r2]),2):
                 PC += imm
             else:
                 PC += 4
         case "bgeu":
-            if int(integer_to_binary(registers[r1],2)) >= int(integer_to_binary(registers[r2],2)):
+            print("bgeu")
+            if int(integer_to_binary(registers[r1]),2) >= int(integer_to_binary(registers[r2]),2):
                 PC += imm
             else:
                 PC += 4
@@ -316,15 +331,22 @@ def main():
 
     global PC
     global halt
+    i = 0
+    
     while not halt:
         original_PC = PC
         line = data[PC//4]
 
         opcode = line[25:32]
+        
+        print(i)
+        print(PC//4)
+        
 
         match opcode:
             # R-type
             case "0110011":
+                print("rtype" )
                 funct7 = line[0:7]
                 rs2 = line[7:12]
                 rs1 = line[12:17]
@@ -337,6 +359,8 @@ def main():
 
             # I-type
             case "0000011":
+                print( "itype" )
+                
                 imm = line[0:12]
                 rs1 = line[12:17]
                 funct3 = line[17:20]
@@ -347,6 +371,8 @@ def main():
                         itype(keys, rd, rs1, imm)
 
             case "0010011":
+                print("itype" )
+                
                 imm = line[0:12]
                 rs1 = line[12:17]
                 funct3 = line[17:20]
@@ -357,6 +383,8 @@ def main():
                         itype(keys, rd, rs1, imm)
 
             case "1100111":
+                print("itype" )
+                
                 imm = line[0:12]
                 rs1 = line[12:17]
                 funct3 = line[17:20]
@@ -368,6 +396,8 @@ def main():
 
             # S-type
             case "0100011":
+                print("stype" )
+                
                 imm = line[0:7] + line[20:25]
                 rs2 = line[7:12]
                 rs1 = line[12:17]
@@ -379,6 +409,8 @@ def main():
 
             # B-type
             case "1100011":
+                print( "btype" )
+                
                 imm = line[0] + line[24] + line[1:7] + line[20:24] + "0"
                 rs2 = line[7:12]
                 rs1 = line[12:17]
@@ -390,6 +422,8 @@ def main():
 
             # U-type
             case "0110111":
+                print( "utype" )
+                
                 imm = line[0:20] + "000000000000"
                 rd = line[20:25]
                 opcode = line[25:32]
@@ -398,6 +432,8 @@ def main():
                         utype(keys, rd, imm)
 
             case "0010111":
+                print( "utype" )
+                
                 imm = line[0:20] + "000000000000"
                 rd = line[20:25]
                 opcode = line[25:32]
@@ -407,6 +443,8 @@ def main():
 
             # J-type
             case "1101111":
+                print( "jtype" )
+                
                 imm = line[0] + line[12:20] + line[11] + line[1:11] + "0"
                 rd = line[20:25]
                 opcode = line[25:32]
@@ -426,11 +464,13 @@ def main():
                     if values[0] == opcode and values[1] == funct3 and values[2] == funct7:
                         bonus(keys, rd, rs1, rs2)
 
+        i+=1
+        
         # register write
         f = open("/home/ayush/Assembly-RISCV-CO2024/simulator/sim/output.txt", "a")
         f.write("0b"+decimal_to_32bit_binary(PC) + " ")
-        for i in registers:
-            f.write("0b"+integer_to_binary(registers[i]) + " ")
+        for j in registers:
+            f.write("0b"+integer_to_binary(registers[j]) + " ")
         f.write("\n")
         f.close()
 
